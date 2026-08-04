@@ -225,74 +225,97 @@ function goHome() {
     if(bottomNav) bottomNav.style.transform = 'translateY(0)';
 }
 
-// ================= AI DYNAMIC QUIZ GENERATOR ENGINE =================
+// ================= AI DYNAMIC QUIZ GENERATOR ENGINE (MỞ RỘNG ĐẦY ĐỦ CÁC CÂU HỎI CHO TỪNG CHUYÊN ĐỀ) =================
 let quizData = [];
 let currentQuizIndex = 0;
 let quizScore = 0;
 
-// Bộ dữ liệu mẫu ngân hàng câu hỏi AI phân hóa theo chuyên đề
 const aiQuestionBank = {
     grammar: {
         "Thì và sự phối hợp thì": [
-            { q: "By the time the teacher _____ tomorrow, we will have finished our essay.", options: ["arrive", "arrives", "arrived", "will arrive"], ans: 1 },
-            { q: "She _____ in this city for 10 years before she moved to London in 2020.", options: ["has lived", "had lived", "was living", "lives"], ans: 1 },
-            { q: "While my mother _____ dinner, my father was reading the newspaper.", options: ["cooks", "cooked", "was cooking", "has cooked"], ans: 2 }
+            { q: "By the time the teacher tomorrow, we will have finished our essay.", options: ["arrive", "arrives", "arrived", "will arrive"], ans: 1 },
+            { q: "She in this city for 10 years before she moved to London in 2020.", options: ["has lived", "had lived", "was living", "lives"], ans: 1 },
+            { q: "While my mother dinner, my father was reading the newspaper.", options: ["cooks", "cooked", "was cooking", "has cooked"], ans: 2 },
+            { q: "Up to the present, the scientist several new species in the rainforest.", options: ["discovers", "discovered", "has discovered", "had discovered"], ans: 2 },
+            { q: "Right now, Nam for his final physics examination in the library.", options: ["prepares", "is preparing", "prepared", "has prepared"], ans: 1 }
         ],
         "Câu điều kiện và mệnh đề giả định": [
-            { q: "If I _____ you were coming, I would have baked a cake.", options: ["know", "knew", "had known", "would know"], ans: 2 },
-            { q: "It is essential that every student _____ their assignment on time.", options: ["submits", "submit", "submitted", "will submit"], ans: 1 },
-            { q: "If she studies hard, she _____ the entrance exam easily.", options: ["passed", "would pass", "will pass", "passes"], ans: 2 }
+            { q: "If I you were coming, I would have baked a cake.", options: ["know", "knew", "had known", "would know"], ans: 2 },
+            { q: "It is essential that every student their assignment on time.", options: ["submits", "submit", "submitted", "will submit"], ans: 1 },
+            { q: "If she studies hard, she the entrance exam easily.", options: ["passed", "would pass", "will pass", "passes"], ans: 2 },
+            { q: "Were I in your position, I responsibility for the mistake.", options: ["will take", "would take", "take", "took"], ans: 1 },
+            { q: "Provided that you hard, you will achieve your target score.", options: ["study", "studied", "will study", "have studied"], ans: 0 }
         ],
         "Mệnh đề quan hệ và rút gọn mệnh đề": [
-            { q: "The man _____ to my father yesterday is our new principal.", options: ["talked", "talking", "talk", "is talking"], ans: 1 },
-            { q: "Do you know the house _____ the famous author was born?", options: ["which", "where", "when", "whose"], ans: 1 },
-            { q: "The book _____ on the top shelf belongs to me.", options: ["is found", "found", "finding", "to find"], ans: 1 }
+            { q: "The man to my father yesterday is our new principal.", options: ["talked", "talking", "talk", "is talking"], ans: 1 },
+            { q: "Do you know the house the famous author was born?", options: ["which", "where", "when", "whose"], ans: 1 },
+            { q: "The book on the top shelf belongs to me.", options: ["is found", "found", "finding", "to find"], ans: 1 },
+            { q: "Students all the test papers handed in their answers before the bell rang.", options: ["having finished", "finished", "finish", "to finish"], ans: 0 },
+            { q: "The scientist won the Nobel Prize is famous for his environmental research.", options: ["who", "whom", "which", "whose"], ans: 0 }
         ],
         "Câu bị động và đảo ngữ": [
-            { q: "Hardly _____ closed his eyes when the telephone rang.", options: ["he had", "had he", "did he", "he did"], ans: 1 },
-            { q: "A new shopping mall _____ in our town next month.", options: ["will build", "will be built", "is building", "built"], ans: 1 },
-            { q: "Only when you practice every day _____ fluent in English.", options: ["you can become", "can you become", "you will become", "become you"], ans: 1 }
+            { q: "Hardly closed his eyes when the telephone rang.", options: ["he had", "had he", "did he", "he did"], ans: 1 },
+            { q: "A new shopping mall in our town next month.", options: ["will build", "will be built", "is building", "built"], ans: 1 },
+            { q: "Only when you practice every day fluent in English.", options: ["you can become", "can you become", "you will become", "become you"], ans: 1 },
+            { q: "Not until she arrived home that she had left her keys at the office.", options: ["she realized", "did she realize", "realized she", "that she realized"], ans: 1 },
+            { q: "English as a global language in many international schools.", options: ["is teaching", "is taught", "teaches", "has taught"], ans: 1 }
         ],
         "all": [
-            { q: "[Tổng hợp] Neither the teacher nor the students _____ present at the meeting yet.", options: ["is", "are", "has been", "have been"], ans: 3 },
-            { q: "[Tổng hợp] Not only _____ the exam, but she also got a scholarship.", options: ["she passed", "did she pass", "passed she", "she did pass"], ans: 1 },
-            { q: "[Tổng hợp] Having finished her homework, Linh _____ to bed.", options: ["went", "go", "going", "gone"], ans: 0 },
-            { q: "[Tổng hợp] She speaks English as fluently as if she _____ a native speaker.", options: ["is", "were", "had been", "will be"], ans: 1 }
+            { q: "[Tổng hợp Ngữ pháp] Neither the teacher nor the students present at the meeting yet.", options: ["is", "are", "has been", "have been"], ans: 3 },
+            { q: "[Tổng hợp Ngữ pháp] Not only the exam, but she also got a scholarship.", options: ["she passed", "did she pass", "passed she", "she did pass"], ans: 1 },
+            { q: "[Tổng hợp Ngữ pháp] Having finished her homework, Linh to bed.", options: ["went", "go", "going", "gone"], ans: 0 },
+            { q: "[Tổng hợp Ngữ pháp] She speaks English as fluently as if she a native speaker.", options: ["is", "were", "had been", "will be"], ans: 1 },
+            { q: "[Tổng hợp Ngữ pháp] It is high time we measures to protect endangered wildlife.", options: ["take", "took", "taken", "will take"], ans: 1 }
         ]
     },
     vocab: {
         "Unit 1-3: Life Stories & Generations": [
-            { q: "The generation _____ often creates misunderstandings in communication between parents and teenagers.", options: ["gap", "space", "distance", "interval"], ans: 0 },
-            { q: "He decided to follow in his father's _____ and become a doctor.", options: ["steps", "shoes", "footsteps", "path"], ans: 2 },
-            { q: "An inspirational figure is someone who _____ others to achieve great things.", options: ["discourages", "motivates", "forces", "bothers"], ans: 1 }
+            { q: "The generation often creates misunderstandings in communication between parents and teenagers.", options: ["gap", "space", "distance", "interval"], ans: 0 },
+            { q: "He decided to follow in his father's and become a doctor.", options: ["steps", "shoes", "footsteps", "path"], ans: 2 },
+            { q: "An inspirational figure is someone who others to achieve great things.", options: ["discourages", "motivates", "forces", "bothers"], ans: 1 },
+            { q: "Many young people nowadays prefer living independently rather than depending their parents.", options: ["on", "in", "with", "at"], ans: 0 },
+            { q: "Respecting family traditions is an essential part of cultural in our country.", options: ["identity", "change", "rebellion", "conflict"], ans: 0 }
         ],
         "Unit 4-6: Urbanisation & Smart Cities": [
-            { q: "Rapid _____ leads to a massive movement of people from rural areas to big cities.", options: ["urbanisation", "industrialisation", "globalisation", "commercialisation"], ans: 0 },
-            { q: "Smart cities utilize advanced technology to improve public _____ and urban efficiency.", options: ["congestion", "services", "poverty", "pollution"], ans: 1 },
-            { q: "Living in high-rise apartment blocks has become common among _____ dwellers.", options: ["suburban", "rural", "urban", "provincial"], ans: 2 }
+            { q: "Rapid leads to a massive movement of people from rural areas to big cities.", options: ["urbanisation", "industrialisation", "globalisation", "commercialisation"], ans: 0 },
+            { q: "Smart cities utilize advanced technology to improve public and urban efficiency.", options: ["congestion", "services", "poverty", "pollution"], ans: 1 },
+            { q: "Living in high-rise apartment blocks has become common among dwellers.", options: ["suburban", "rural", "urban", "provincial"], ans: 2 },
+            { q: "Traffic congestion during rush hours remains a major issue for city planners.", options: ["solution", "challenge", "benefit", "advantage"], ans: 1 },
+            { q: "Urban centers offer diverse career opportunities compared to remote areas.", options: ["similar", "various", "limited", "scarce"], ans: 1 }
         ],
         "Unit 7-9: Green Movement & Ecology": [
-            { q: "We should adopt an eco-friendly lifestyle to reduce our carbon _____.", options: ["footprint", "handprint", "shadow", "emission"], ans: 0 },
-            { q: "Deforestation significantly contributes to global _____ and loss of biodiversity.", options: ["warming", "cooling", "freezing", "watering"], ans: 0 },
-            { q: "Renewable energy sources such as solar and wind power are considered _____.", options: ["exhaustible", "sustainable", "limited", "harmful"], ans: 1 }
+            { q: "We should adopt an eco-friendly lifestyle to reduce our carbon .", options: ["footprint", "handprint", "shadow", "emission"], ans: 0 },
+            { q: "Deforestation significantly contributes to global and loss of biodiversity.", options: ["warming", "cooling", "freezing", "watering"], ans: 0 },
+            { q: "Renewable energy sources such as solar and wind power are considered .", options: ["exhaustible", "sustainable", "limited", "harmful"], ans: 1 },
+            { q: "Citizens are encouraged to plastic bags and switch to reusable containers.", options: ["recycle", "abandon", "manufacture", "consume"], ans: 0 },
+            { q: "Protecting natural habitats is crucial for maintaining ecological balance on Earth.", options: ["destruction", "disruption", "balance", "instability"], ans: 2 }
         ],
         "Unit 10-12: Artificial Intelligence & Career": [
-            { q: "Artificial intelligence (AI) has the potential to _____ various industries completely.", options: ["revolutionise", "stagnate", "deteriorate", "damage"], ans: 0 },
-            { q: "Job applicants are required to possess strong digital _____ in the modern workplace.", options: ["illiteracy", "literacy", "skills", "ignorance"], ans: 2 },
-            { q: "Automation may replace routine tasks, creating a high demand for _____ thinking.", options: ["critical", "useless", "shallow", "passive"], ans: 0 }
+            { q: "Artificial intelligence (AI) has the potential to various industries completely.", options: ["revolutionise", "stagnate", "deteriorate", "damage"], ans: 0 },
+            { q: "Job applicants are required to possess strong digital in the modern workplace.", options: ["illiteracy", "literacy", "skills", "ignorance"], ans: 2 },
+            { q: "Automation may replace routine tasks, creating a high demand for thinking.", options: ["critical", "useless", "shallow", "passive"], ans: 0 },
+            { q: "Continuous learning helps professionals adapt to the fast-changing job market.", options: ["static", "dynamic", "fixed", "rigid"], ans: 1 },
+            { q: "Mentorship programs provide valuable guidance for young graduates starting their careers.", options: ["obstacles", "guidance", "confusion", "barriers"], ans: 1 }
         ],
         "all": [
-            { q: "[Tổng hợp Từ vựng] The company is looking for candidates with high _____ and adaptability.", options: ["flexibility", "rigidity", "hostility", "fragility"], ans: 0 },
-            { q: "[Tổng hợp Từ vựng] Environmentalists are calling for stricter regulations on plastic _____.", options: ["conservation", "consumption", "production", "destruction"], ans: 2 },
-            { q: "[Tổng hợp Từ vựng] Modern technology offers immense benefits in _____ medical treatments.", options: ["enhancing", "hindering", "delaying", "worsening"], ans: 0 },
-            { q: "[Tổng hợp Từ vựng] Maintaining work-life balance is crucial for long-term mental _____.", options: ["stress", "well-being", "pressure", "fatigue"], ans: 1 }
+            { q: "[Tổng hợp Từ vựng] The company is looking for candidates with high and adaptability.", options: ["flexibility", "rigidity", "hostility", "fragility"], ans: 0 },
+            { q: "[Tổng hợp Từ vựng] Environmentalists are calling for stricter regulations on plastic .", options: ["conservation", "consumption", "production", "destruction"], ans: 2 },
+            { q: "[Tổng hợp Từ vựng] Modern technology offers immense benefits in medical treatments.", options: ["enhancing", "hindering", "delaying", "worsening"], ans: 0 },
+            { q: "[Tổng hợp Từ vựng] Maintaining work-life balance is crucial for long-term mental .", options: ["stress", "well-being", "pressure", "fatigue"], ans: 1 },
+            { q: "[Tổng hợp Từ vựng] Collaboration among international organizations is vital for solving global crises.", options: ["Isolation", "Collaboration", "Competition", "Indifference"], ans: 1 }
         ]
     },
     mock: [
-        { q: "[BGD 2025 - Câu 1-12: Đọc điền] Smart devices are becoming increasingly popular _____ modern households.", options: ["in", "on", "at", "with"], ans: 0 },
-        { q: "[BGD 2025 - Câu 13-17: Sắp xếp câu] Choose the correct arrangement: a. However, high-rise buildings also block natural light. b. Urban areas provide numerous job opportunities. c. Therefore, green architecture is introduced. -> b - a - c", options: ["Đúng", "Sai"], ans: 0 },
-        { q: "[BGD 2025 - Câu 18-22: Điền khuyết văn bản] If city planners invest in public transport, traffic congestion _____ significantly.", options: ["will reduce", "will be reduced", "reduces", "reduced"], ans: 1 },
-        { q: "[BGD 2025 - Câu 23-40: Đọc hiểu] What is the main message of sustainable urban design?", options: ["Maximizing concrete buildings", "Balancing human growth and environmental protection", "Eliminating all private vehicles", "Stopping all economic activities"], ans: 1 }
+        { q: "[Phần 1 - Đọc điền thông báo] NOTICE: All employees are required safety gear before entering the laboratory.", options: ["wearing", "to wear", "wear", "worn"], ans: 1 },
+        { q: "[Phần 1 - Đọc điền thông báo] The conference room has been booked a special seminar on artificial intelligence.", options: ["for", "in", "at", "with"], ans: 0 },
+        { q: "[Phần 1 - Đọc điền thông báo] Customers are advised to keep their receipts any exchange or refund.", options: ["in case", "so that", "although", "unless"], ans: 0 },
+        { q: "[Phần 1 - Đọc điền thông báo] Renewable energy sources are popular they help reduce carbon emissions.", options: ["because", "despite", "although", "consequently"], ans: 0 },
+        { q: "[Phần 2 - Sắp xếp đoạn hội thoại] Choose logical order:\na. Nam: That's a great idea. Let's start this weekend.\nb. Lan: We should organize a clean-up campaign in our neighborhood.\nc. Nam: How can we reduce plastic waste around our school?", options: ["b - c - a", "c - b - a", "b - a - c", "a - b - c"], ans: 1 },
+        { q: "[Phần 2 - Sắp xếp lá thư] Choose correct order for request letter:\na. I am writing to apply for volunteer coordinator position.\nb. Dear Hiring Manager,\nc. I look forward to hearing from you soon.\nd. Please find attached my resume.", options: ["b - a - d - c", "a - b - c - d", "b - d - a - c", "d - b - a - c"], ans: 0 },
+        { q: "[Phần 3 - Điền khuyết văn bản] Urbanisation brings economic growth; , it also causes housing shortages.", options: ["moreover", "however", "therefore", "otherwise"], ans: 1 },
+        { q: "[Phần 3 - Điền khuyết văn bản] Only when individuals change habits a truly sustainable society.", options: ["we can build", "can we build", "we will build", "will we build"], ans: 1 },
+        { q: "[Phần 4 - Đọc hiểu văn bản] Passage: 'AI is transforming workplaces. Routine tasks are automated.' -> Question: Main benefit of AI?", options: ["Eliminates all office jobs", "Enables focus on creative tasks", "Makes management unnecessary", "Reduces working hours to zero"], ans: 1 },
+        { q: "[Phần 4 - Đọc hiểu văn bản] Passage: 'Green architecture minimizes environmental impact.' -> Question: Key feature?", options: ["Using traditional energy", "Maximizing impact", "Using sustainable materials and efficiency", "Increasing emissions"], ans: 2 }
     ]
 };
 
@@ -326,13 +349,13 @@ function startAIAllVocabTest() {
 
 function startTest(testName) {
     quizData = aiQuestionBank.mock;
-    document.getElementById('quiz-header-title').innerText = `AI Mock Test (Chuẩn 40 câu BGD) 📝`;
+    document.getElementById('quiz-header-title').innerText = `AI Mock Test (Chuẩn 4 phần BGD) 📝`;
     openScreen('screen-quiz');
     initQuiz();
 }
 
 function generateFullAIMockTest() {
-    alert("🤖 AI đã tự động biên soạn thành công bộ đề thi thử chuẩn cấu trúc BGD mới nhất với 4 câu hỏi tổng hợp chuyên sâu!");
+    alert("🤖 AI đã biên soạn thành công bộ đề thi thử chuẩn cấu trúc mới!");
     startTest('AI Mock Test');
 }
 
