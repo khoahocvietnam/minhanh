@@ -77,13 +77,6 @@
             <!-- MÀN HÌNH CHÍNH -->
             <div id="screen-home" class="app-screen absolute inset-0 overflow-y-auto pb-28 z-10 hidden">
                 <div class="header-bg relative pt-12 pb-6 px-6">
-                    <button onclick="openScreen('screen-notification')" class="absolute top-12 right-6 w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center text-red-500 z-20 hover:bg-gray-50">
-                        <div class="relative">
-                            <i class="fa-regular fa-bell text-xl"></i>
-                            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
-                        </div>
-                    </button>
-
                     <div class="relative z-20 max-w-[65%]">
                         <h1 class="font-display text-4xl text-blue-900 tracking-tight mb-2">Score<span class="text-blue-600">Up</span></h1>
                         <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider leading-relaxed">
@@ -155,6 +148,21 @@
                         <h3 class="font-display text-[17px] text-app-dark leading-tight">AI Mock Tests</h3>
                         <p class="text-[12px] text-gray-400 font-medium mt-0.5 text-red-600">Đề thi chuẩn 40 câu</p>
                     </button>
+                </div>
+            </div>
+
+            <!-- MÀN HÌNH START HERE -->
+            <div id="screen-starthere" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-app-dark">Start Here 🐘</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5 space-y-4">
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+                        <h3 class="font-display text-xl text-blue-900 mb-2">Cấu trúc đề mới 2025+</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-3">Đề thi gồm 40 câu trắc nghiệm (50 phút), tập trung kiểm tra năng lực sử dụng ngôn ngữ thực tế qua các phần đọc điền, sắp xếp câu và đọc hiểu chuyên sâu.</p>
+                    </div>
                 </div>
             </div>
 
@@ -264,6 +272,51 @@
                 </div>
             </div>
 
+            <!-- EXAM PATTERNS -->
+            <div id="screen-patterns" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-app-dark">Exam Patterns 📋</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5 space-y-3">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">Phần 1 (12 câu)</span>
+                        <h4 class="font-display font-bold text-blue-900 mt-1">Đọc điền thông báo / tờ rơi</h4>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <span class="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-md">Phần 2 (5 câu)</span>
+                        <h4 class="font-display font-bold text-orange-900 mt-1">Sắp xếp đoạn hội thoại / lá thư</h4>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md">Phần 3 (5 câu)</span>
+                        <h4 class="font-display font-bold text-purple-900 mt-1">Điền câu / cụm từ khuyết thiếu</h4>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Phần 4 (18 câu)</span>
+                        <h4 class="font-display font-bold text-emerald-900 mt-1">Đọc hiểu chuyên sâu (2 bài đọc)</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POMODORO FOCUS MODE -->
+            <div id="screen-focus" class="app-screen absolute inset-0 bg-rose-50 z-20 hidden flex-col">
+                <div class="px-5 pt-12 pb-4 flex items-center justify-between">
+                    <button onclick="goHome()" class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-rose-600 shadow-sm"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-rose-800">Focus Mode 🍅</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 flex flex-col items-center justify-center p-6 -mt-10">
+                    <div class="w-64 h-64 bg-white rounded-full shadow flex flex-col items-center justify-center border-[8px] border-rose-100">
+                        <h1 id="timer-display" class="font-display text-6xl text-rose-600">25:00</h1>
+                    </div>
+                    <div class="flex gap-4 mt-10">
+                        <button onclick="resetTimer()" class="w-14 h-14 bg-white text-rose-400 rounded-2xl flex items-center justify-center text-xl shadow-sm"><i class="fa-solid fa-rotate-right"></i></button>
+                        <button id="btn-timer-toggle" onclick="toggleTimer()" class="w-20 h-14 bg-rose-500 text-white rounded-2xl flex items-center justify-center text-xl shadow-lg"><i class="fa-solid fa-play"></i></button>
+                    </div>
+                </div>
+            </div>
+
             <!-- AI MOCK TESTS (CHUẨN 40 CÂU BGD) -->
             <div id="screen-mock" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
                 <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
@@ -272,17 +325,19 @@
                     <div class="w-10"></div>
                 </div>
                 <div class="flex-1 overflow-y-auto p-5 space-y-4">
+                    <!-- BANNER TẠO ĐỀ AI -->
                     <div class="bg-gradient-to-r from-red-500 to-pink-600 p-5 rounded-3xl text-white shadow-md">
                         <h3 class="font-display text-xl mb-1">🤖 AI Tạo Đề 40 Câu</h3>
                         <p class="text-xs opacity-90 mb-3">Hệ thống sẽ tự động tổng hợp ngẫu nhiên đúng 40 câu (chuẩn 4 cấu trúc) từ kho dữ liệu khủng.</p>
-                        <button onclick="startMockTest()" class="bg-white text-red-600 font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-gray-50 transition-colors">
+                        <!-- NÚT GỌI HÀM SINH ĐỀ CHUẨN XÁC -->
+                        <button onclick="startMockTest()" class="w-full bg-white text-red-600 font-bold px-4 py-3 rounded-xl text-sm shadow hover:bg-gray-50 transition-colors">
                             <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> Sinh đề và Làm bài ngay
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- MÀN HÌNH LÀM QUIZ CHUNG (TỰ ĐỘNG CẬP NHẬT GIAO DIỆN) -->
+            <!-- MÀN HÌNH LÀM QUIZ CHUNG -->
             <div id="screen-quiz" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
                 <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
                     <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-100"><i class="fa-solid fa-arrow-left"></i></button>
@@ -303,11 +358,69 @@
                     <div class="text-[80px] mb-4">🎉</div>
                     <h2 class="font-display text-3xl text-app-dark mb-2">Hoàn thành xuất sắc!</h2>
                     <p class="font-display text-4xl text-blue-600 mb-8" id="quiz-xp-earned">+0</p>
-                    <button onclick="goHome()" class="w-full max-w-sm bg-blue-600 text-white font-bold py-4 rounded-2xl">Về trang chủ</button>
+                    <button onclick="goHome()" class="w-full max-w-sm bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg">Về trang chủ</button>
                 </div>
             </div>
 
-            <!-- BỎ QUA CÁC MÀN HÌNH KHÁC (STAY HOME, PROFILE...) Ở ĐÂY ĐỂ TRÁNH DÀI DÒNG, GIỮ NGUYÊN CẤU TRÚC ĐÓ -->
+            <!-- CÁC MÀN HÌNH KHÁC (STATS, PROFILE, ROADMAP) -->
+            <div id="screen-roadmap" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-app-dark">Lộ trình 🚀</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5 space-y-4">
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-blue-100 border-l-4 border-l-blue-600">
+                        <span class="text-xs font-bold text-blue-600">GIAI ĐOẠN 1</span>
+                        <h4 class="font-display text-base text-app-dark mt-1">Luyện tập chuyên sâu Ngữ pháp & Từ vựng AI</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div id="screen-stats" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-app-dark">Thống kê 📊</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5">
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex items-center justify-around text-center">
+                        <div>
+                            <span id="stats-streak" class="font-display text-3xl text-orange-500">7</span>
+                            <p class="text-xs text-gray-400 mt-1">Streak</p>
+                        </div>
+                        <div class="w-[1px] h-10 bg-gray-100"></div>
+                        <div>
+                            <span id="stats-xp" class="font-display text-3xl text-blue-600">850</span>
+                            <p class="text-xs text-gray-400 mt-1">XP</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="screen-profile" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-100"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-app-dark">Cá nhân 👤</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5 space-y-4">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center">
+                        <div id="profile-avatar" class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3 font-display shadow-inner">SZ</div>
+                        <h3 id="profile-name" class="font-display text-xl text-app-dark">Sĩ tử</h3>
+                        <p id="profile-target" class="text-xs text-gray-400 mt-0.5">Mục tiêu 9+ Tiếng Anh (Cấu trúc mới)</p>
+                        
+                        <button onclick="editProfile()" class="mt-4 bg-blue-50 text-blue-600 text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-blue-100 transition-colors shadow-sm inline-block">
+                            <i class="fa-solid fa-pen-to-square mr-1.5"></i> Chỉnh sửa hồ sơ
+                        </button>
+                    </div>
+
+                    <button onclick="handleLogout()" class="w-full bg-red-50 text-red-600 font-bold py-3.5 rounded-2xl hover:bg-red-100 transition-all text-sm">
+                        <i class="fa-solid fa-right-from-bracket mr-2"></i> Đăng xuất tài khoản
+                    </button>
+                </div>
+            </div>
+
         </div>
 
         <!-- BOTTOM NAVIGATION -->
@@ -330,6 +443,8 @@
             </button>
         </div>
     </div>
+
+    <!-- SCRIPT CHÍNH -->
     <script src="app.js"></script>
 </body>
 </html>
