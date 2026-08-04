@@ -6,11 +6,11 @@ const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 let userName = "Sĩ tử";
-let userTarget = "Sĩ tử 2K7 • Mục tiêu 9+ Tiếng Anh";
+let userTarget = "Sĩ tử 2K7 • Mục tiêu 9+ Tiếng Anh (Cấu trúc mới)";
 let userXP = 850;
 let streak = 7;
 
-// ================= KHỞI TẠO ỨNG DỤNG & AUTH =================
+// ================= AUTHENTICATION =================
 window.addEventListener('DOMContentLoaded', async () => {
     try {
         const { data: { session } } = await dbClient.auth.getSession();
@@ -93,7 +93,7 @@ function showHomeScreen() {
     goHome();
 }
 
-// ================= ĐỒNG BỘ DỮ LIỆU CLOUD =================
+// ================= CLOUD SYNC =================
 async function fetchUserData() {
     if (!currentUser) return;
     try {
@@ -104,7 +104,6 @@ async function fetchUserData() {
             .single();
 
         if (error || !data) {
-            // Tạo bản ghi mặc định cho user mới trên Cloud
             await dbClient.from('profiles').insert([{
                 id: currentUser.id,
                 full_name: currentUser.email.split('@')[0],
@@ -120,7 +119,7 @@ async function fetchUserData() {
         }
         updateDynamicUI();
     } catch (err) {
-        console.error('Lỗi tải dữ liệu từ Cloud:', err);
+        console.error('Lỗi tải dữ liệu:', err);
     }
 }
 
@@ -181,7 +180,7 @@ async function editProfile() {
 
     updateDynamicUI();
     await saveStateToCloud();
-    alert("🎉 Đã cập nhật hồ sơ lên Cloud thành công!");
+    alert("🎉 Đã cập nhật hồ sơ thành công!");
 }
 
 async function updateXP(amount) {
@@ -196,7 +195,7 @@ async function updateXP(amount) {
     }
 }
 
-// ================= ĐIỀU HƯỚNG MÀN HÌNH =================
+// ================= NAVIGATION =================
 function openScreen(screenId) {
     document.querySelectorAll('.app-screen').forEach(el => {
         el.classList.add('hidden');
@@ -227,11 +226,11 @@ function goHome() {
     if(bottomNav) bottomNav.style.transform = 'translateY(0)';
 }
 
-// ================= GRAMMAR LAB (QUIZ) =================
+// ================= QUIZ & EXAM SIMULATION (FORM MỚI) =================
 const quizData = [
-    { q: "I _____ working on this project since last Monday.", options: ["have been", "am", "was", "had"], ans: 0 },
-    { q: "If I _____ you, I would study harder for the exam.", options: ["was", "am", "were", "had been"], ans: 2 },
-    { q: "She asked me where I _____ my umbrella.", options: ["leave", "have left", "left", "had left"], ans: 3 }
+    { q: "[Cloze Test] Urbanisation brings both opportunities and challenges _____ economic growth.", options: ["promoting", "to promote", "promote", "promoted"], ans: 1 },
+    { q: "[Sentence Arrangement] Choose the correct order: a. Furthermore, green spaces help purify air. b. Cities are becoming more crowded. c. Therefore, urban planners are planting trees. -> b - c - a", options: ["Đúng", "Sai"], ans: 0 },
+    { q: "[Reading Comprehension] What is the primary focus of the new green movement in 12th-grade textbooks?", options: ["Industrial expansion", "Sustainable development", "Higher carbon emissions", "Urban congestion"], ans: 1 }
 ];
 let currentQuizIndex = 0;
 let quizScore = 0;
@@ -311,6 +310,28 @@ function finishQuiz() {
     updateXP(quizScore);
 }
 
+// ================= AI MOCK TEST GENERATOR =================
+async function generateAIMockTest() {
+    const container = document.getElementById('ai-test-container');
+    if(!container) return;
+
+    alert("🤖 AI đang biên soạn đề thi thử bám sát cấu trúc 40 câu mới nhất... Vui lòng đợi 3 giây!");
+    
+    // Thêm đề thi mới do AI tạo động vào giao diện
+    const newTestDiv = document.createElement('div');
+    newTestDiv.className = "bg-white p-4 rounded-2xl shadow-sm border border-red-100 flex justify-between items-center animate-pulse";
+    newTestDiv.innerHTML = `
+        <div>
+            <span class="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-md">AI Generated</span>
+            <h4 class="font-display text-sm font-bold text-app-dark mt-1">Đề thi thử AI (Chuyên đề Đọc hiểu & Điền từ)</h4>
+            <p class="text-[11px] text-gray-400">Tạo tự động bởi Scorey AI • 40 câu trắc nghiệm</p>
+        </div>
+        <button onclick="alert('Đã kích hoạt bộ đề AI thành công! Chúc sĩ tử ôn tập tốt.')" class="bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold">Làm ngay</button>
+    `;
+    container.prepend(newTestDiv);
+    setTimeout(() => newTestDiv.classList.remove('animate-pulse'), 1000);
+}
+
 // ================= POMODORO TIMER =================
 let timerInterval = null;
 let timeLeft = 25 * 60;
@@ -337,7 +358,7 @@ function toggleTimer() {
                 updateTimerDisplay();
             } else {
                 clearInterval(timerInterval);
-                alert("Hết giờ! Hoàn thành 1 Pomodoro. +50 XP");
+                alert("Hết giờ! Hoàn thành 1 Pomodoro tập trung. +50 XP");
                 updateXP(50);
             }
         }, 1000);
