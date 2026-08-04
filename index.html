@@ -10,6 +10,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- THƯ VIỆN SUPABASE JS CLIENT -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <link rel="stylesheet" href="styles.css">
 
     <script>
@@ -33,14 +37,45 @@
         }
     </script>
 </head>
-<body class="flex items-center justify-center min-h-screen">
+<body class="flex items-center justify-center min-h-screen bg-gray-900">
 
     <div class="w-full max-w-[414px] h-[896px] max-h-screen bg-app-bg relative overflow-hidden sm:rounded-[40px] sm:shadow-2xl shadow-none flex flex-col">
         
         <div class="flex-1 relative overflow-hidden">
             
-            <!-- ================= SCREEN: HOME ================= -->
-            <div id="screen-home" class="app-screen absolute inset-0 overflow-y-auto pb-28 z-10 block screen-enter">
+            <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ (AUTH) -->
+            <div id="screen-auth" class="app-screen absolute inset-0 bg-white z-50 flex flex-col justify-between p-6">
+                <div class="pt-12 text-center">
+                    <div class="w-20 h-20 bg-blue-100 rounded-3xl mx-auto flex items-center justify-center text-4xl mb-4 shadow-inner">🐘</div>
+                    <h1 class="font-display text-3xl text-blue-900">Score<span class="text-blue-600">Up</span></h1>
+                    <p class="text-sm text-gray-400 mt-1">Đồng hành cùng sĩ tử chinh phục 9+ Tiếng Anh</p>
+                </div>
+
+                <div class="space-y-4 my-auto">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Email của bạn</label>
+                        <input type="email" id="auth-email" placeholder="sitzer2k7@gmail.com" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-[15px] outline-none focus:border-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Mật khẩu</label>
+                        <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-[15px] outline-none focus:border-blue-600">
+                    </div>
+
+                    <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all mt-2">
+                        Đăng nhập ngay
+                    </button>
+                    <button onclick="handleRegister()" class="w-full bg-gray-100 text-gray-700 font-bold py-3.5 rounded-2xl hover:bg-gray-200 transition-all">
+                        Tài khoản mới? Đăng ký
+                    </button>
+                </div>
+
+                <div class="text-center pb-4">
+                    <p class="text-xs text-gray-400">Bảo mật tuyệt đối cùng Supabase Cloud ☁️</p>
+                </div>
+            </div>
+
+            <!-- MÀN HÌNH CHÍNH -->
+            <div id="screen-home" class="app-screen absolute inset-0 overflow-y-auto pb-28 z-10 hidden">
                 <div class="header-bg relative pt-12 pb-6 px-6">
                     <button onclick="openScreen('screen-notification')" class="absolute top-12 right-6 w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center text-red-500 z-20 hover:bg-gray-50">
                         <div class="relative">
@@ -64,7 +99,7 @@
                 <!-- STATS -->
                 <div class="px-5 -mt-2 relative z-30">
                     <div class="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
-                        <h2 class="font-display text-[1.35rem] text-app-dark leading-tight">Xin chào, <span id="greeting-name">Minh Anh</span>! 👋</h2>
+                        <h2 class="font-display text-[1.35rem] text-app-dark leading-tight">Xin chào, <span id="greeting-name">Sĩ tử</span>! 👋</h2>
                         <p class="text-app-text text-[15px] mt-1 mb-4">Hôm nay bạn muốn chinh phục mục tiêu nào?</p>
                         
                         <div class="flex gap-3">
@@ -139,7 +174,7 @@
                 </div>
             </div>
 
-            <!-- ================= SUB SCREENS ================= -->
+            <!-- CÁC MÀN HÌNH PHỤ -->
             <div id="screen-starthere" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
                 <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
                     <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
@@ -149,7 +184,7 @@
                 <div class="flex-1 overflow-y-auto p-5 space-y-4">
                     <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
                         <h3 class="font-display text-xl text-blue-900 mb-2">Chào mừng đến với ScoreUp!</h3>
-                        <p class="text-sm text-gray-600 leading-relaxed">Ứng dụng đồng hành cùng sĩ tử 2K7 ôn thi THPT Quốc Gia môn Tiếng Anh.</p>
+                        <p class="text-sm text-gray-600 leading-relaxed">Ứng dụng đồng hành cùng sĩ tử 2K7 ôn thi THPT Quốc Gia.</p>
                     </div>
                 </div>
             </div>
@@ -248,23 +283,26 @@
                 </div>
             </div>
 
-            <!-- PROFILE SCREEN WITH EDIT -->
             <div id="screen-profile" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
                 <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
                     <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-100"><i class="fa-solid fa-arrow-left"></i></button>
                     <h2 class="font-display text-lg text-app-dark">Cá nhân 👤</h2>
                     <div class="w-10"></div>
                 </div>
-                <div class="flex-1 overflow-y-auto p-5">
+                <div class="flex-1 overflow-y-auto p-5 space-y-4">
                     <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center">
                         <div id="profile-avatar" class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3 font-display shadow-inner">MA</div>
-                        <h3 id="profile-name" class="font-display text-xl text-app-dark">Minh Anh</h3>
+                        <h3 id="profile-name" class="font-display text-xl text-app-dark">Sĩ tử</h3>
                         <p id="profile-target" class="text-xs text-gray-400 mt-0.5">Sĩ tử 2K7 • Mục tiêu 9+ Tiếng Anh</p>
                         
-                        <button onclick="editProfile()" class="mt-5 bg-blue-50 text-blue-600 text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-blue-100 transition-colors shadow-sm">
+                        <button onclick="editProfile()" class="mt-4 bg-blue-50 text-blue-600 text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-blue-100 transition-colors shadow-sm inline-block">
                             <i class="fa-solid fa-pen-to-square mr-1.5"></i> Chỉnh sửa hồ sơ
                         </button>
                     </div>
+
+                    <button onclick="handleLogout()" class="w-full bg-red-50 text-red-600 font-bold py-3.5 rounded-2xl hover:bg-red-100 transition-all text-sm">
+                        <i class="fa-solid fa-right-from-bracket mr-2"></i> Đăng xuất tài khoản
+                    </button>
                 </div>
             </div>
 
