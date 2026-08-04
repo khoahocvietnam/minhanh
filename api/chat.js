@@ -1,0 +1,42 @@
+export default async function handler(req, res) {
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    try {
+        const { message } = req.body;
+        // Lấy API Key đã được mã hóa an toàn trong phần Environment Variables của Vercel
+        const apiKey = process.env.GEMINI_API_KEY;
+
+        if (!apiKey) {
+            return res.status(500).json({ error: 'Chưa cấu hình GEMINI_API_KEY trên Vercel' });
+        }
+
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        
+        const payload = {
+            contents: [{ parts: [{ text: message }] }],
+            systemInstruction: {
+                parts: [{ text: "Bạn tên là Scorey, một chú voi AI thông minh làm gia sư tiếng Anh cho học sinh cấp 3 tại Việt Nam ôn thi THPT Quốc Gia. Hãy luôn trả lời bằng tiếng Việt, giải thích ngữ pháp ngắn gọn, dễ hiểu, dùng ngôn ngữ GenZ thân thiện, hay dùng emoji. Câu trả lời dưới 100 chữ." }]
+            }
+        };
+
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        
+        if (data.candidates && data.candidates[0].content) {
+            const aiText = data.candidates[0].content.parts[0].text;
+            return res.status(200).json({ text: aiText });
+        } else {
+            return res.status(500).json({ error: 'Không nhận được phản hồi từ Gemini' });
+        }
+    } catch (error) {
+        console.error("API Error:", error);
+        return res.status(500).json({ error: 'Lỗi hệ thống' });
+    }
+}
