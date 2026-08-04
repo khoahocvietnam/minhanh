@@ -11,11 +11,11 @@ export default async function handler(req, res) {
             return res.status(500).json({ error: 'Chưa cấu hình GEMINI_API_KEY trên Vercel' });
         }
 
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        // Sử dụng model gemini-2.5-flash-lite theo yêu cầu của bạn
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`;
         
         const payload = {
             contents: [{ parts: [{ text: message }] }],
-            // Sử dụng system_instruction (có dấu gạch dưới) chuẩn theo REST API của Google Gemini
             system_instruction: {
                 parts: [{ text: "Bạn tên là Scorey, một chú voi AI thông minh làm gia sư tiếng Anh cho học sinh cấp 3 tại Việt Nam ôn thi THPT Quốc Gia. Hãy luôn trả lời bằng tiếng Việt, giải thích ngữ pháp ngắn gọn, dễ hiểu, dùng ngôn ngữ GenZ thân thiện, hay dùng emoji. Câu trả lời dưới 100 chữ." }]
             }
