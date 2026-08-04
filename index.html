@@ -1,565 +1,511 @@
-// ================= KẾT NỐI SUPABASE =================
-const SUPABASE_URL = 'https://ifhskkqjttkucirpztsi.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmaHNra3FqdHRrdWNpcnB6dHNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4Mjk2NzksImV4cCI6MjEwMTQwNTY3OX0.n1sMPDMMRTcM72XKWyVKZJg3H67KPnSQHv03NKi8i3M';
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScoreUp - Học thông minh, tự tin bứt phá</title>
 
-const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-let currentUser = null;
-let userName = "Sĩ tử";
-let userTarget = "Sĩ tử 2K7 • Mục tiêu 9+ Tiếng Anh (Cấu trúc mới)";
-let userXP = 850;
-let streak = 7;
-
-// ================= AUTHENTICATION =================
-window.addEventListener('DOMContentLoaded', async () => {
-    try {
-        const { data: { session } } = await dbClient.auth.getSession();
-        if (session && session.user) {
-            currentUser = session.user;
-            await fetchUserData();
-            showHomeScreen();
-        } else {
-            showAuthScreen();
-        }
-    } catch (err) {
-        console.error("Auth Session Error:", err);
-        showAuthScreen();
-    }
-});
-
-async function handleRegister() {
-    const emailField = document.getElementById('auth-email');
-    const passwordField = document.getElementById('auth-password');
-    if(!emailField || !passwordField) return;
-
-    const email = emailField.value.trim();
-    const password = passwordField.value.trim();
-
-    if(!email || !password) {
-        alert("Vui lòng nhập đầy đủ email và mật khẩu!");
-        return;
-    }
-
-    const { error } = await dbClient.auth.signUp({ email, password });
-    if (error) {
-        alert("Lỗi đăng ký: " + error.message);
-    } else {
-        alert("🎉 Đăng ký thành công! Hãy bấm Đăng nhập ngay.");
-    }
-}
-
-async function handleLogin() {
-    const emailField = document.getElementById('auth-email');
-    const passwordField = document.getElementById('auth-password');
-    if(!emailField || !passwordField) return;
-
-    const email = emailField.value.trim();
-    const password = passwordField.value.trim();
-
-    if(!email || !password) {
-        alert("Vui lòng nhập đầy đủ email và mật khẩu!");
-        return;
-    }
-
-    const { data, error } = await dbClient.auth.signInWithPassword({ email, password });
-    if (error) {
-        alert("Đăng nhập thất bại: " + error.message);
-    } else {
-        currentUser = data.user;
-        await fetchUserData();
-        showHomeScreen();
-    }
-}
-
-async function handleLogout() {
-    await dbClient.auth.signOut();
-    currentUser = null;
-    showAuthScreen();
-}
-
-function showAuthScreen() {
-    const authScreen = document.getElementById('screen-auth');
-    const homeScreen = document.getElementById('screen-home');
-    const bottomNav = document.getElementById('bottom-nav');
-
-    if(authScreen) authScreen.classList.remove('hidden');
-    if(homeScreen) homeScreen.classList.add('hidden');
-    if(bottomNav) bottomNav.style.transform = 'translateY(100%)';
-}
-
-function showHomeScreen() {
-    const authScreen = document.getElementById('screen-auth');
-    if(authScreen) authScreen.classList.add('hidden');
-    goHome();
-}
-
-// ================= CLOUD SYNC =================
-async function fetchUserData() {
-    if (!currentUser) return;
-    try {
-        const { data, error } = await dbClient
-            .from('profiles')
-            .select('*')
-            .eq('id', currentUser.id)
-            .single();
-
-        if (error || !data) {
-            await dbClient.from('profiles').insert([{
-                id: currentUser.id,
-                full_name: currentUser.email.split('@')[0],
-                target: userTarget,
-                streak: 7,
-                xp: 850
-            }]);
-        } else {
-            userName = data.full_name || currentUser.email.split('@')[0];
-            userTarget = data.target || "Sĩ tử 2K7";
-            userXP = data.xp || 850;
-            streak = data.streak || 7;
-        }
-        updateDynamicUI();
-    } catch (err) {
-        console.error('Lỗi tải dữ liệu:', err);
-    }
-}
-
-async function saveStateToCloud() {
-    if (!currentUser) return;
-    try {
-        await dbClient
-            .from('profiles')
-            .update({
-                full_name: userName,
-                target: userTarget,
-                xp: userXP,
-                streak: streak,
-                updated_at: new Date()
-            })
-            .eq('id', currentUser.id);
-    } catch (err) {
-        console.error('Lỗi lưu Cloud:', err);
-    }
-}
-
-function updateDynamicUI() {
-    const greetingName = document.getElementById('greeting-name');
-    const profileName = document.getElementById('profile-name');
-    const profileTarget = document.getElementById('profile-target');
-    const profileAvatar = document.getElementById('profile-avatar');
-
-    if(greetingName) greetingName.innerText = userName;
-    if(profileName) profileName.innerText = userName;
-    if(profileTarget) profileTarget.innerText = userTarget;
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
-    if(profileAvatar) {
-        const initials = userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-        profileAvatar.innerText = initials || 'SZ';
-    }
+    <!-- THƯ VIỆN SUPABASE JS CLIENT -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    const xpDisplay = document.getElementById('xp-display');
-    const streakDisplay = document.getElementById('streak-display');
-    const statsXp = document.getElementById('stats-xp');
-    const statsStreak = document.getElementById('stats-streak');
-    
-    if(xpDisplay) xpDisplay.innerText = userXP;
-    if(streakDisplay) streakDisplay.innerText = streak;
-    if(statsXp) statsXp.innerText = userXP;
-    if(statsStreak) statsStreak.innerText = streak;
-}
+    <link rel="stylesheet" href="styles.css">
 
-async function editProfile() {
-    const newName = prompt("Nhập tên hiển thị của bạn:", userName);
-    if(newName !== null && newName.trim() !== "") {
-        userName = newName.trim();
-    }
-
-    const newTarget = prompt("Nhập mục tiêu học tập của bạn:", userTarget);
-    if(newTarget !== null && newTarget.trim() !== "") {
-        userTarget = newTarget.trim();
-    }
-
-    updateDynamicUI();
-    await saveStateToCloud();
-    alert("🎉 Đã cập nhật hồ sơ thành công!");
-}
-
-async function updateXP(amount) {
-    userXP += amount;
-    updateDynamicUI();
-    await saveStateToCloud();
-
-    const xpDisplay = document.getElementById('xp-display');
-    if(xpDisplay) {
-        xpDisplay.classList.add('text-green-500', 'scale-125');
-        setTimeout(() => xpDisplay.classList.remove('text-green-500', 'scale-125'), 300);
-    }
-}
-
-// ================= NAVIGATION =================
-function openScreen(screenId) {
-    document.querySelectorAll('.app-screen').forEach(el => {
-        el.classList.add('hidden');
-        el.classList.remove('screen-enter');
-    });
-    const target = document.getElementById(screenId);
-    if(target) {
-        target.classList.remove('hidden');
-        target.classList.add('screen-enter');
-    }
-    const bottomNav = document.getElementById('bottom-nav');
-    if(screenId !== 'screen-home' && screenId !== 'screen-auth') {
-        if(bottomNav) bottomNav.style.transform = 'translateY(100%)';
-    }
-}
-
-function goHome() {
-    document.querySelectorAll('.app-screen').forEach(el => {
-        el.classList.add('hidden');
-    });
-    const home = document.getElementById('screen-home');
-    if(home) {
-        home.classList.remove('hidden');
-        home.classList.add('screen-enter');
-    }
-    const bottomNav = document.getElementById('bottom-nav');
-    if(bottomNav) bottomNav.style.transform = 'translateY(0)';
-}
-
-// ================= AI DYNAMIC QUIZ GENERATOR ENGINE (MỞ RỘNG ĐẦY ĐỦ CÁC CÂU HỎI CHO TỪNG CHUYÊN ĐỀ) =================
-let quizData = [];
-let currentQuizIndex = 0;
-let quizScore = 0;
-
-const aiQuestionBank = {
-    grammar: {
-        "Thì và sự phối hợp thì": [
-            { q: "By the time the teacher tomorrow, we will have finished our essay.", options: ["arrive", "arrives", "arrived", "will arrive"], ans: 1 },
-            { q: "She in this city for 10 years before she moved to London in 2020.", options: ["has lived", "had lived", "was living", "lives"], ans: 1 },
-            { q: "While my mother dinner, my father was reading the newspaper.", options: ["cooks", "cooked", "was cooking", "has cooked"], ans: 2 },
-            { q: "Up to the present, the scientist several new species in the rainforest.", options: ["discovers", "discovered", "has discovered", "had discovered"], ans: 2 },
-            { q: "Right now, Nam for his final physics examination in the library.", options: ["prepares", "is preparing", "prepared", "has prepared"], ans: 1 }
-        ],
-        "Câu điều kiện và mệnh đề giả định": [
-            { q: "If I you were coming, I would have baked a cake.", options: ["know", "knew", "had known", "would know"], ans: 2 },
-            { q: "It is essential that every student their assignment on time.", options: ["submits", "submit", "submitted", "will submit"], ans: 1 },
-            { q: "If she studies hard, she the entrance exam easily.", options: ["passed", "would pass", "will pass", "passes"], ans: 2 },
-            { q: "Were I in your position, I responsibility for the mistake.", options: ["will take", "would take", "take", "took"], ans: 1 },
-            { q: "Provided that you hard, you will achieve your target score.", options: ["study", "studied", "will study", "have studied"], ans: 0 }
-        ],
-        "Mệnh đề quan hệ và rút gọn mệnh đề": [
-            { q: "The man to my father yesterday is our new principal.", options: ["talked", "talking", "talk", "is talking"], ans: 1 },
-            { q: "Do you know the house the famous author was born?", options: ["which", "where", "when", "whose"], ans: 1 },
-            { q: "The book on the top shelf belongs to me.", options: ["is found", "found", "finding", "to find"], ans: 1 },
-            { q: "Students all the test papers handed in their answers before the bell rang.", options: ["having finished", "finished", "finish", "to finish"], ans: 0 },
-            { q: "The scientist won the Nobel Prize is famous for his environmental research.", options: ["who", "whom", "which", "whose"], ans: 0 }
-        ],
-        "Câu bị động và đảo ngữ": [
-            { q: "Hardly closed his eyes when the telephone rang.", options: ["he had", "had he", "did he", "he did"], ans: 1 },
-            { q: "A new shopping mall in our town next month.", options: ["will build", "will be built", "is building", "built"], ans: 1 },
-            { q: "Only when you practice every day fluent in English.", options: ["you can become", "can you become", "you will become", "become you"], ans: 1 },
-            { q: "Not until she arrived home that she had left her keys at the office.", options: ["she realized", "did she realize", "realized she", "that she realized"], ans: 1 },
-            { q: "English as a global language in many international schools.", options: ["is teaching", "is taught", "teaches", "has taught"], ans: 1 }
-        ],
-        "all": [
-            { q: "[Tổng hợp Ngữ pháp] Neither the teacher nor the students present at the meeting yet.", options: ["is", "are", "has been", "have been"], ans: 3 },
-            { q: "[Tổng hợp Ngữ pháp] Not only the exam, but she also got a scholarship.", options: ["she passed", "did she pass", "passed she", "she did pass"], ans: 1 },
-            { q: "[Tổng hợp Ngữ pháp] Having finished her homework, Linh to bed.", options: ["went", "go", "going", "gone"], ans: 0 },
-            { q: "[Tổng hợp Ngữ pháp] She speaks English as fluently as if she a native speaker.", options: ["is", "were", "had been", "will be"], ans: 1 },
-            { q: "[Tổng hợp Ngữ pháp] It is high time we measures to protect endangered wildlife.", options: ["take", "took", "taken", "will take"], ans: 1 }
-        ]
-    },
-    vocab: {
-        "Unit 1-3: Life Stories & Generations": [
-            { q: "The generation often creates misunderstandings in communication between parents and teenagers.", options: ["gap", "space", "distance", "interval"], ans: 0 },
-            { q: "He decided to follow in his father's and become a doctor.", options: ["steps", "shoes", "footsteps", "path"], ans: 2 },
-            { q: "An inspirational figure is someone who others to achieve great things.", options: ["discourages", "motivates", "forces", "bothers"], ans: 1 },
-            { q: "Many young people nowadays prefer living independently rather than depending their parents.", options: ["on", "in", "with", "at"], ans: 0 },
-            { q: "Respecting family traditions is an essential part of cultural in our country.", options: ["identity", "change", "rebellion", "conflict"], ans: 0 }
-        ],
-        "Unit 4-6: Urbanisation & Smart Cities": [
-            { q: "Rapid leads to a massive movement of people from rural areas to big cities.", options: ["urbanisation", "industrialisation", "globalisation", "commercialisation"], ans: 0 },
-            { q: "Smart cities utilize advanced technology to improve public and urban efficiency.", options: ["congestion", "services", "poverty", "pollution"], ans: 1 },
-            { q: "Living in high-rise apartment blocks has become common among dwellers.", options: ["suburban", "rural", "urban", "provincial"], ans: 2 },
-            { q: "Traffic congestion during rush hours remains a major issue for city planners.", options: ["solution", "challenge", "benefit", "advantage"], ans: 1 },
-            { q: "Urban centers offer diverse career opportunities compared to remote areas.", options: ["similar", "various", "limited", "scarce"], ans: 1 }
-        ],
-        "Unit 7-9: Green Movement & Ecology": [
-            { q: "We should adopt an eco-friendly lifestyle to reduce our carbon .", options: ["footprint", "handprint", "shadow", "emission"], ans: 0 },
-            { q: "Deforestation significantly contributes to global and loss of biodiversity.", options: ["warming", "cooling", "freezing", "watering"], ans: 0 },
-            { q: "Renewable energy sources such as solar and wind power are considered .", options: ["exhaustible", "sustainable", "limited", "harmful"], ans: 1 },
-            { q: "Citizens are encouraged to plastic bags and switch to reusable containers.", options: ["recycle", "abandon", "manufacture", "consume"], ans: 0 },
-            { q: "Protecting natural habitats is crucial for maintaining ecological balance on Earth.", options: ["destruction", "disruption", "balance", "instability"], ans: 2 }
-        ],
-        "Unit 10-12: Artificial Intelligence & Career": [
-            { q: "Artificial intelligence (AI) has the potential to various industries completely.", options: ["revolutionise", "stagnate", "deteriorate", "damage"], ans: 0 },
-            { q: "Job applicants are required to possess strong digital in the modern workplace.", options: ["illiteracy", "literacy", "skills", "ignorance"], ans: 2 },
-            { q: "Automation may replace routine tasks, creating a high demand for thinking.", options: ["critical", "useless", "shallow", "passive"], ans: 0 },
-            { q: "Continuous learning helps professionals adapt to the fast-changing job market.", options: ["static", "dynamic", "fixed", "rigid"], ans: 1 },
-            { q: "Mentorship programs provide valuable guidance for young graduates starting their careers.", options: ["obstacles", "guidance", "confusion", "barriers"], ans: 1 }
-        ],
-        "all": [
-            { q: "[Tổng hợp Từ vựng] The company is looking for candidates with high and adaptability.", options: ["flexibility", "rigidity", "hostility", "fragility"], ans: 0 },
-            { q: "[Tổng hợp Từ vựng] Environmentalists are calling for stricter regulations on plastic .", options: ["conservation", "consumption", "production", "destruction"], ans: 2 },
-            { q: "[Tổng hợp Từ vựng] Modern technology offers immense benefits in medical treatments.", options: ["enhancing", "hindering", "delaying", "worsening"], ans: 0 },
-            { q: "[Tổng hợp Từ vựng] Maintaining work-life balance is crucial for long-term mental .", options: ["stress", "well-being", "pressure", "fatigue"], ans: 1 },
-            { q: "[Tổng hợp Từ vựng] Collaboration among international organizations is vital for solving global crises.", options: ["Isolation", "Collaboration", "Competition", "Indifference"], ans: 1 }
-        ]
-    },
-    mock: [
-        { q: "[Phần 1 - Đọc điền thông báo] NOTICE: All employees are required safety gear before entering the laboratory.", options: ["wearing", "to wear", "wear", "worn"], ans: 1 },
-        { q: "[Phần 1 - Đọc điền thông báo] The conference room has been booked a special seminar on artificial intelligence.", options: ["for", "in", "at", "with"], ans: 0 },
-        { q: "[Phần 1 - Đọc điền thông báo] Customers are advised to keep their receipts any exchange or refund.", options: ["in case", "so that", "although", "unless"], ans: 0 },
-        { q: "[Phần 1 - Đọc điền thông báo] Renewable energy sources are popular they help reduce carbon emissions.", options: ["because", "despite", "although", "consequently"], ans: 0 },
-        { q: "[Phần 2 - Sắp xếp đoạn hội thoại] Choose logical order:\na. Nam: That's a great idea. Let's start this weekend.\nb. Lan: We should organize a clean-up campaign in our neighborhood.\nc. Nam: How can we reduce plastic waste around our school?", options: ["b - c - a", "c - b - a", "b - a - c", "a - b - c"], ans: 1 },
-        { q: "[Phần 2 - Sắp xếp lá thư] Choose correct order for request letter:\na. I am writing to apply for volunteer coordinator position.\nb. Dear Hiring Manager,\nc. I look forward to hearing from you soon.\nd. Please find attached my resume.", options: ["b - a - d - c", "a - b - c - d", "b - d - a - c", "d - b - a - c"], ans: 0 },
-        { q: "[Phần 3 - Điền khuyết văn bản] Urbanisation brings economic growth; , it also causes housing shortages.", options: ["moreover", "however", "therefore", "otherwise"], ans: 1 },
-        { q: "[Phần 3 - Điền khuyết văn bản] Only when individuals change habits a truly sustainable society.", options: ["we can build", "can we build", "we will build", "will we build"], ans: 1 },
-        { q: "[Phần 4 - Đọc hiểu văn bản] Passage: 'AI is transforming workplaces. Routine tasks are automated.' -> Question: Main benefit of AI?", options: ["Eliminates all office jobs", "Enables focus on creative tasks", "Makes management unnecessary", "Reduces working hours to zero"], ans: 1 },
-        { q: "[Phần 4 - Đọc hiểu văn bản] Passage: 'Green architecture minimizes environmental impact.' -> Question: Key feature?", options: ["Using traditional energy", "Maximizing impact", "Using sustainable materials and efficiency", "Increasing emissions"], ans: 2 }
-    ]
-};
-
-function startAIGrammarQuiz(topicName) {
-    quizData = aiQuestionBank.grammar[topicName] || aiQuestionBank.grammar["all"];
-    document.getElementById('quiz-header-title').innerText = `Ngữ pháp: ${topicName} 🧪`;
-    openScreen('screen-quiz');
-    initQuiz();
-}
-
-function startAIAllGrammarTest() {
-    quizData = aiQuestionBank.grammar["all"];
-    document.getElementById('quiz-header-title').innerText = `Kiểm tra tổng hợp Ngữ Pháp ⚡`;
-    openScreen('screen-quiz');
-    initQuiz();
-}
-
-function startAIVocabQuiz(topicName) {
-    quizData = aiQuestionBank.vocab[topicName] || aiQuestionBank.vocab["all"];
-    document.getElementById('quiz-header-title').innerText = `Từ vựng: ${topicName} 🛍️`;
-    openScreen('screen-quiz');
-    initQuiz();
-}
-
-function startAIAllVocabTest() {
-    quizData = aiQuestionBank.vocab["all"];
-    document.getElementById('quiz-header-title').innerText = `Kiểm tra tổng hợp Từ Vựng ⚡`;
-    openScreen('screen-quiz');
-    initQuiz();
-}
-
-function startTest(testName) {
-    quizData = aiQuestionBank.mock;
-    document.getElementById('quiz-header-title').innerText = `AI Mock Test (Chuẩn 4 phần BGD) 📝`;
-    openScreen('screen-quiz');
-    initQuiz();
-}
-
-function generateFullAIMockTest() {
-    alert("🤖 AI đã biên soạn thành công bộ đề thi thử chuẩn cấu trúc mới!");
-    startTest('AI Mock Test');
-}
-
-function initQuiz() {
-    currentQuizIndex = 0;
-    quizScore = 0;
-    const summary = document.getElementById('quiz-summary');
-    if(summary) summary.classList.add('hidden');
-    loadQuizQuestion();
-}
-
-function loadQuizQuestion() {
-    if(currentQuizIndex >= quizData.length) return;
-    const qData = quizData[currentQuizIndex];
-    const currElem = document.getElementById('quiz-current');
-    const totalElem = document.getElementById('quiz-total');
-    const qElem = document.getElementById('quiz-question');
-    
-    if(currElem) currElem.innerText = currentQuizIndex + 1;
-    if(totalElem) totalElem.innerText = quizData.length;
-    if(qElem) qElem.innerText = qData.q;
-    
-    const optionsContainer = document.getElementById('quiz-options');
-    if(!optionsContainer) return;
-    optionsContainer.innerHTML = '';
-
-    qData.options.forEach((opt, index) => {
-        const btn = document.createElement('button');
-        btn.className = 'w-full text-left bg-white border-2 border-gray-100 p-4 rounded-2xl font-medium text-app-text hover:border-blue-300 hover:bg-blue-50 transition-colors flex items-center justify-between';
-        btn.innerHTML = `<span>${opt}</span> <i class="fa-regular fa-circle text-gray-300"></i>`;
-        btn.onclick = () => handleAnswer(index, btn);
-        optionsContainer.appendChild(btn);
-    });
-}
-
-function handleAnswer(selectedIndex, btnElement) {
-    const optionsContainer = document.getElementById('quiz-options');
-    if(!optionsContainer) return;
-    const buttons = optionsContainer.querySelectorAll('button');
-    buttons.forEach(b => b.onclick = null);
-
-    const correctIndex = quizData[currentQuizIndex].ans;
-    const isCorrect = (selectedIndex === correctIndex);
-
-    if (isCorrect) {
-        btnElement.classList.remove('border-gray-100', 'hover:border-blue-300', 'hover:bg-blue-50');
-        btnElement.classList.add('border-green-500', 'bg-green-50', 'text-green-700');
-        const icon = btnElement.querySelector('i');
-        if(icon) icon.className = 'fa-solid fa-circle-check text-green-500 text-xl';
-        quizScore += 10;
-    } else {
-        btnElement.classList.remove('border-gray-100');
-        btnElement.classList.add('border-red-500', 'bg-red-50', 'text-red-700');
-        const icon = btnElement.querySelector('i');
-        if(icon) icon.className = 'fa-solid fa-circle-xmark text-red-500 text-xl';
-        
-        if(buttons[correctIndex]) {
-            buttons[correctIndex].classList.add('border-green-500', 'bg-green-50');
-            const correctIcon = buttons[correctIndex].querySelector('i');
-            if(correctIcon) correctIcon.className = 'fa-solid fa-circle-check text-green-500 text-xl';
-        }
-    }
-
-    setTimeout(() => {
-        currentQuizIndex++;
-        if (currentQuizIndex < quizData.length) {
-            loadQuizQuestion();
-        } else {
-            finishQuiz();
-        }
-    }, 1200);
-}
-
-function finishQuiz() {
-    const summary = document.getElementById('quiz-summary');
-    const earned = document.getElementById('quiz-xp-earned');
-    if(summary) summary.classList.remove('hidden');
-    if(earned) earned.innerText = `+${quizScore}`;
-    updateXP(quizScore);
-}
-
-// ================= POMODORO TIMER =================
-let timerInterval = null;
-let timeLeft = 25 * 60;
-let isTimerRunning = false;
-
-function updateTimerDisplay() {
-    const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-    const s = (timeLeft % 60).toString().padStart(2, '0');
-    const display = document.getElementById('timer-display');
-    if(display) display.innerText = `${m}:${s}`;
-}
-
-function toggleTimer() {
-    const toggleBtn = document.getElementById('btn-timer-toggle');
-    if(!toggleBtn) return;
-    const btnIcon = toggleBtn.querySelector('i');
-    if (isTimerRunning) {
-        clearInterval(timerInterval);
-        if(btnIcon) btnIcon.className = 'fa-solid fa-play';
-    } else {
-        timerInterval = setInterval(() => {
-            if (timeLeft > 0) {
-                timeLeft--;
-                updateTimerDisplay();
-            } else {
-                clearInterval(timerInterval);
-                alert("Hết giờ! Hoàn thành 1 Pomodoro tập trung. +50 XP");
-                updateXP(50);
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        app: {
+                            bg: '#f4f7fb',
+                            dark: '#1e293b',
+                            primary: '#1d4ed8',
+                            text: '#475569',
+                        }
+                    }
+                }
             }
-        }, 1000);
-        if(btnIcon) btnIcon.className = 'fa-solid fa-pause';
-    }
-    isTimerRunning = !isTimerRunning;
-}
-
-function resetTimer() {
-    clearInterval(timerInterval);
-    isTimerRunning = false;
-    timeLeft = 25 * 60;
-    updateTimerDisplay();
-    const toggleBtn = document.getElementById('btn-timer-toggle');
-    if(toggleBtn) {
-        const btnIcon = toggleBtn.querySelector('i');
-        if(btnIcon) btnIcon.className = 'fa-solid fa-play';
-    }
-}
-
-// ================= AI TUTOR CHAT =================
-function appendMessage(text, sender) {
-    const container = document.getElementById('chat-messages');
-    if(!container) return;
-    const msgDiv = document.createElement('div');
-    msgDiv.className = `flex gap-3 max-w-[85%] ${sender === 'user' ? 'ml-auto flex-row-reverse' : ''}`;
-    
-    const avatar = sender === 'user' 
-        ? `<div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0 border border-blue-200 text-blue-600 text-sm"><i class="fa-solid fa-user"></i></div>`
-        : `<div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 border border-indigo-200 text-sm">🤖</div>`;
-        
-    const bubbleClasses = sender === 'user'
-        ? `bg-blue-600 text-white p-3 rounded-2xl rounded-tr-none shadow-sm text-[15px] leading-relaxed`
-        : `bg-white border border-gray-100 p-3 rounded-2xl rounded-tl-none shadow-sm text-[15px] text-app-text leading-relaxed`;
-
-    msgDiv.innerHTML = `${avatar}<div class="${bubbleClasses}">${text}</div>`;
-    container.appendChild(msgDiv);
-    container.scrollTop = container.scrollHeight;
-}
-
-function appendLoading() {
-    const container = document.getElementById('chat-messages');
-    if(!container) return;
-    const msgDiv = document.createElement('div');
-    msgDiv.id = 'chat-loading';
-    msgDiv.className = `flex gap-3 max-w-[85%]`;
-    msgDiv.innerHTML = `
-        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center shrink-0 border border-indigo-200 text-sm">🤖</div>
-        <div class="bg-white border border-gray-100 p-3 rounded-2xl rounded-tl-none shadow-sm flex items-center gap-1">
-            <div class="w-1.5 h-1.5 bg-indigo-400 rounded-full typing-dot"></div>
-            <div class="w-1.5 h-1.5 bg-indigo-400 rounded-full typing-dot"></div>
-            <div class="w-1.5 h-1.5 bg-indigo-400 rounded-full typing-dot"></div>
-        </div>
-    `;
-    container.appendChild(msgDiv);
-    container.scrollTop = container.scrollHeight;
-}
-
-function removeLoading() {
-    const loader = document.getElementById('chat-loading');
-    if (loader) loader.remove();
-}
-
-function handleChatKey(e) {
-    if(e.key === 'Enter') sendChatMessage();
-}
-
-async function sendChatMessage() {
-    const input = document.getElementById('chat-input');
-    if(!input) return;
-    const text = input.value.trim();
-    if (!text) return;
-
-    appendMessage(text, 'user');
-    input.value = '';
-    appendLoading();
-
-    try {
-        const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: text })
-        });
-        
-        const result = await response.json();
-        removeLoading();
-
-        if (result.text) {
-            const htmlText = result.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-            appendMessage(htmlText, 'bot');
-        } else {
-            appendMessage(result.error || "Scorey đang bận một chút, thử lại sau nhé! 😥", 'bot');
         }
-    } catch (error) {
-        console.error("Chat Error:", error);
-        removeLoading();
-        appendMessage("Lỗi kết nối mạng rồi bạn ơi! 🔌", 'bot');
-    }
-}
+    </script>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gray-900">
+
+    <div class="w-full max-w-[414px] h-[896px] max-h-screen bg-app-bg relative overflow-hidden sm:rounded-[40px] sm:shadow-2xl shadow-none flex flex-col">
+        
+        <div class="flex-1 relative overflow-hidden">
+            
+            <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ -->
+            <div id="screen-auth" class="app-screen absolute inset-0 bg-white z-50 flex flex-col justify-between p-6">
+                <div class="pt-12 text-center">
+                    <div class="w-20 h-20 bg-blue-100 rounded-3xl mx-auto flex items-center justify-center text-4xl mb-4 shadow-inner">🐘</div>
+                    <h1 class="font-display text-3xl text-blue-900">Score<span class="text-blue-600">Up</span></h1>
+                    <p class="text-sm text-gray-400 mt-1">Cấu trúc 2025+ • AI Ôn thi THPT Quốc Gia</p>
+                </div>
+
+                <div class="space-y-4 my-auto">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Email của bạn</label>
+                        <input type="email" id="auth-email" placeholder="sitzer2k7@gmail.com" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-[15px] outline-none focus:border-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Mật khẩu</label>
+                        <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-[15px] outline-none focus:border-blue-600">
+                    </div>
+
+                    <button onclick="handleLogin()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all mt-2">
+                        Đăng nhập ngay
+                    </button>
+                    <button onclick="handleRegister()" class="w-full bg-gray-100 text-gray-700 font-bold py-3.5 rounded-2xl hover:bg-gray-200 transition-all">
+                        Tài khoản mới? Đăng ký
+                    </button>
+                </div>
+
+                <div class="text-center pb-4">
+                    <p class="text-xs text-gray-400">Bảo mật dữ liệu cùng Supabase Cloud ☁️</p>
+                </div>
+            </div>
+
+            <!-- MÀN HÌNH CHÍNH -->
+            <div id="screen-home" class="app-screen absolute inset-0 overflow-y-auto pb-28 z-10 hidden">
+                <div class="header-bg relative pt-12 pb-6 px-6">
+                    <button onclick="openScreen('screen-notification')" class="absolute top-12 right-6 w-10 h-10 bg-white rounded-full shadow-sm flex items-center justify-center text-red-500 z-20 hover:bg-gray-50">
+                        <div class="relative">
+                            <i class="fa-regular fa-bell text-xl"></i>
+                            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                        </div>
+                    </button>
+
+                    <div class="relative z-20 max-w-[65%]">
+                        <h1 class="font-display text-4xl text-blue-900 tracking-tight mb-2">Score<span class="text-blue-600">Up</span></h1>
+                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider leading-relaxed">
+                            Chương trình mới<br>- Chinh phục 9+ Tiếng Anh
+                        </p>
+                    </div>
+
+                    <div class="absolute right-0 top-10 w-44 h-44 z-10 overflow-hidden pointer-events-none">
+                        <img src="image_f6b244.jpg" alt="Scorey" class="w-full h-full object-cover object-[center_20%] opacity-90 mix-blend-multiply rounded-bl-[60px]" onerror="this.src='https://placehold.co/400x400/transparent/1d4ed8?text=🐘'">
+                    </div>
+                </div>
+
+                <!-- STATS -->
+                <div class="px-5 -mt-2 relative z-30">
+                    <div class="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+                        <h2 class="font-display text-[1.35rem] text-app-dark leading-tight">Xin chào, <span id="greeting-name">Sĩ tử</span>! 👋</h2>
+                        <p class="text-app-text text-[15px] mt-1 mb-4">Hôm nay bạn muốn luyện tập chuyên đề nào?</p>
+                        
+                        <div class="flex gap-3">
+                            <div class="flex-1 bg-[#fff6ed] rounded-2xl py-2.5 px-3 flex flex-col items-center justify-center border border-orange-50">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-xl">🔥</span>
+                                    <span id="streak-display" class="font-display text-xl text-app-dark">7</span>
+                                </div>
+                                <span class="text-[11px] text-gray-500 font-medium mt-0.5">Ngày streak</span>
+                            </div>
+                            
+                            <div class="flex-1 bg-[#f0f5ff] rounded-2xl py-2.5 px-3 flex flex-col items-center justify-center border border-blue-50">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-blue-500"><i class="fa-solid fa-bullseye text-lg"></i></span>
+                                    <span id="xp-display" class="font-display text-xl text-app-dark transition-all duration-300">850</span>
+                                </div>
+                                <span class="text-[11px] text-gray-500 font-medium mt-0.5">Điểm XP</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MENU GRID -->
+                <div class="px-5 mt-5 grid grid-cols-2 gap-4">
+                    <button onclick="openScreen('screen-starthere')" class="bg-white rounded-[28px] p-4 text-left shadow-sm relative hover:bg-gray-50 transition-all">
+                        <div class="w-14 h-14 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-[20px] flex items-center justify-center text-3xl mb-3 app-icon border border-yellow-300/30">🐘</div>
+                        <h3 class="font-display text-[17px] text-app-dark leading-tight">Start Here</h3>
+                        <p class="text-[12px] text-gray-400 font-medium mt-0.5">Định hướng 2025+</p>
+                    </button>
+
+                    <button onclick="openScreen('screen-grammar')" class="bg-white rounded-[28px] p-4 text-left shadow-sm relative hover:bg-gray-50 border border-emerald-100 transition-all">
+                        <div class="w-14 h-14 bg-gradient-to-br from-emerald-200 to-emerald-400 rounded-[20px] flex items-center justify-center text-3xl mb-3 app-icon border border-emerald-400/30">🧪</div>
+                        <h3 class="font-display text-[17px] text-app-dark leading-tight">Grammar Lab</h3>
+                        <p class="text-[12px] text-gray-400 font-medium mt-0.5 text-emerald-600">Ngữ pháp theo chuyên đề</p>
+                    </button>
+
+                    <button onclick="openScreen('screen-vocab')" class="bg-white rounded-[28px] p-4 text-left shadow-sm relative hover:bg-gray-50 transition-all">
+                        <div class="w-14 h-14 bg-gradient-to-br from-purple-200 to-purple-400 rounded-[20px] flex items-center justify-center text-3xl mb-3 app-icon border border-purple-400/30">🛍️</div>
+                        <h3 class="font-display text-[17px] text-app-dark leading-tight">Vocab Store</h3>
+                        <p class="text-[12px] text-gray-400 font-medium mt-0.5">Từ vựng theo Unit SGK</p>
+                    </button>
+
+                    <button onclick="openScreen('screen-patterns')" class="bg-white rounded-[28px] p-4 text-left shadow-sm relative hover:bg-gray-50 transition-all">
+                        <div class="w-14 h-14 bg-gradient-to-br from-blue-200 to-blue-500 rounded-[20px] flex items-center justify-center text-3xl mb-3 app-icon border border-blue-400/30">📋</div>
+                        <h3 class="font-display text-[17px] text-app-dark leading-tight">Exam Patterns</h3>
+                        <p class="text-[12px] text-gray-400 font-medium mt-0.5 leading-tight pr-2">Cấu trúc 40 câu</p>
+                    </button>
+
+                    <button onclick="openScreen('screen-focus')" class="bg-white rounded-[28px] p-4 text-left shadow-sm relative hover:bg-gray-50 border border-rose-100 transition-all">
+                        <div class="w-14 h-14 bg-gradient-to-br from-rose-400 to-rose-600 rounded-[20px] flex items-center justify-center text-3xl mb-3 app-icon border border-rose-500/30">🍅</div>
+                        <h3 class="font-display text-[17px] text-app-dark leading-tight">Focus Mode</h3>
+                        <p class="text-[12px] text-gray-400 font-medium mt-0.5 text-rose-500">Pomodoro 25p</p>
+                    </button>
+                    
+                    <button onclick="openScreen('screen-mock')" class="bg-white rounded-[28px] p-4 text-left shadow-sm relative hover:bg-gray-50 transition-all">
+                        <div class="w-14 h-14 bg-gradient-to-br from-red-200 to-red-400 rounded-[20px] flex items-center justify-center text-3xl mb-3 app-icon border border-red-400/30">📝</div>
+                        <h3 class="font-display text-[17px] text-app-dark leading-tight">AI Mock Tests</h3>
+                        <p class="text-[12px] text-gray-400 font-medium mt-0.5 text-red-600">Đề thi chuẩn 40 câu 🤖</p>
+                    </button>
+                </div>
+
+                <!-- SCOREY TUTOR BANNER -->
+                <div class="px-5 mt-4 mb-8">
+                    <button onclick="openScreen('screen-tutor')" class="w-full bg-white rounded-[28px] p-4 text-left shadow-sm relative flex items-center gap-4 hover:bg-gray-50 border border-indigo-100 transition-colors">
+                        <div class="w-16 h-16 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-[20px] flex items-center justify-center text-4xl shrink-0 app-icon border border-indigo-300">🤖</div>
+                        <div class="pr-6">
+                            <h3 class="font-display text-[18px] text-indigo-700 leading-tight mb-1">Scorey Tutor (AI)</h3>
+                            <p class="text-[12px] text-gray-500 font-medium leading-[1.4]">Hỏi bài gia sư Voi Scorey ngay!</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right absolute top-1/2 -translate-y-1/2 right-5 text-indigo-300 text-[12px]"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- CÁC MÀN HÌNH CHUYÊN ĐỀ -->
+            <div id="screen-starthere" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-app-dark">Start Here 🐘</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5 space-y-4">
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
+                        <h3 class="font-display text-xl text-blue-900 mb-2">Cấu trúc đề mới 2025+</h3>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-3">Đề thi gồm 40 câu trắc nghiệm (50 phút), tập trung kiểm tra năng lực sử dụng ngôn ngữ thực tế qua các phần đọc điền, sắp xếp câu và đọc hiểu chuyên sâu.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KHO NGỮ PHÁP THEO CHUYÊN ĐỀ -->
+            <div id="screen-grammar" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-app-dark">Grammar Lab 🧪</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5 space-y-3">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Chọn chuyên đề ôn tập:</p>
+                    
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Thì & Sự phối hợp thì</span>
+                            <h4 class="font-display text-base text-app-dark mt-1">Tenses & Sequence of Tenses</h4>
+                        </div>
+                        <button onclick="startAIGrammarQuiz('Thì và sự phối hợp thì')" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-emerald-700">Luyện AI</button>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Câu điều kiện & Giả định</span>
+                            <h4 class="font-display text-base text-app-dark mt-1">Conditionals & Subjunctives</h4>
+                        </div>
+                        <button onclick="startAIGrammarQuiz('Câu điều kiện và mệnh đề giả định')" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-emerald-700">Luyện AI</button>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Mệnh đề quan hệ & Rút gọn</span>
+                            <h4 class="font-display text-base text-app-dark mt-1">Relative Clauses & Reduced Clauses</h4>
+                        </div>
+                        <button onclick="startAIGrammarQuiz('Mệnh đề quan hệ và rút gọn mệnh đề')" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-emerald-700">Luyện AI</button>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Câu bị động & Đảo ngữ</span>
+                            <h4 class="font-display text-base text-app-dark mt-1">Passive Voice & Inversion</h4>
+                        </div>
+                        <button onclick="startAIGrammarQuiz('Câu bị động và đảo ngữ')" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-emerald-700">Luyện AI</button>
+                    </div>
+
+                    <!-- BÀI TẬP TỔNG HỢP TẤT CẢ NGỮ PHÁP -->
+                    <button onclick="startAIAllGrammarTest()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold p-4 rounded-2xl shadow-md text-sm mt-4 hover:opacity-90">
+                        ⚡ Kiểm tra tổng hợp toàn bộ Ngữ Pháp (AI Test)
+                    </button>
+                </div>
+            </div>
+
+            <!-- KHO TỪ VỰNG THEO CHUYÊN ĐỀ SGK MỚI -->
+            <div id="screen-vocab" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-app-dark">Vocab Store 🛍️</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5 space-y-3">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Chọn chủ đề từ vựng SGK mới:</p>
+                    
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md">Unit 1-3</span>
+                            <h4 class="font-display text-base text-app-dark mt-1">Life Stories & Generations</h4>
+                        </div>
+                        <button onclick="startAIVocabQuiz('Unit 1-3: Life Stories & Generations')" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-purple-700">Luyện AI</button>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md">Unit 4-6</span>
+                            <h4 class="font-display text-base text-app-dark mt-1">Urbanisation & Smart Cities</h4>
+                        </div>
+                        <button onclick="startAIVocabQuiz('Unit 4-6: Urbanisation & Smart Cities')" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-purple-700">Luyện AI</button>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md">Unit 7-9</span>
+                            <h4 class="font-display text-base text-app-dark mt-1">The Green Movement & Ecology</h4>
+                        </div>
+                        <button onclick="startAIVocabQuiz('Unit 7-9: Green Movement & Ecology')" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-purple-700">Luyện AI</button>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md">Unit 10-12</span>
+                            <h4 class="font-display text-base text-app-dark mt-1">Artificial Intelligence & Career</h4>
+                        </div>
+                        <button onclick="startAIVocabQuiz('Unit 10-12: Artificial Intelligence & Career')" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-purple-700">Luyện AI</button>
+                    </div>
+
+                    <!-- BÀI TẬP TỔNG HỢP TẤT CẢ TỪ VỰNG -->
+                    <button onclick="startAIAllVocabTest()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold p-4 rounded-2xl shadow-md text-sm mt-4 hover:opacity-90">
+                        ⚡ Kiểm tra tổng hợp toàn bộ Từ Vựng (AI Test)
+                    </button>
+                </div>
+            </div>
+
+            <div id="screen-patterns" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-app-dark">Exam Patterns 📋</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5 space-y-3">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">Phần 1 (12 câu)</span>
+                        <h4 class="font-display font-bold text-blue-900 mt-1">Đọc điền thông báo / tờ rơi</h4>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <span class="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-md">Phần 2 (5 câu)</span>
+                        <h4 class="font-display font-bold text-orange-900 mt-1">Sắp xếp đoạn hội thoại / lá thư</h4>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md">Phần 3 (5 câu)</span>
+                        <h4 class="font-display font-bold text-purple-900 mt-1">Điền câu / cụm từ khuyết thiếu</h4>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Phần 4 (18 câu)</span>
+                        <h4 class="font-display font-bold text-emerald-900 mt-1">Đọc hiểu chuyên sâu (2 bài đọc)</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI MOCK TESTS (CHUẨN 40 CÂU BGD) -->
+            <div id="screen-mock" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-app-dark">AI Mock Tests 📝</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5 space-y-4">
+                    <div class="bg-gradient-to-r from-red-500 to-pink-600 p-5 rounded-3xl text-white shadow-md">
+                        <h3 class="font-display text-xl mb-1">🤖 Trợ lý AI Sinh Đề Chuẩn 40 Câu</h3>
+                        <p class="text-xs opacity-90 mb-3">Tạo bộ đề thi thử độc quyền cấu trúc BGD mới nhất.</p>
+                        <button onclick="generateFullAIMockTest()" class="bg-white text-red-600 font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-gray-50 transition-colors">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> Tạo đề thi 40 câu ngay
+                        </button>
+                    </div>
+
+                    <div id="ai-test-container" class="space-y-3">
+                        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                            <div>
+                                <span class="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-md">Đề chuẩn 2026</span>
+                                <h4 class="font-display text-sm font-bold text-app-dark mt-1">Đề thi thử số 01 (Form BGD)</h4>
+                            </div>
+                            <button onclick="startTest('Đề 01')" class="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-bold">Làm bài</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="screen-notification" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-app-dark">Thông báo 🔔</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5 space-y-3">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                        <h4 class="font-display text-sm font-bold text-app-dark">Cập nhật hệ thống</h4>
+                        <p class="text-xs text-gray-500 mt-1">Đã bật tính năng AI sinh câu hỏi không trùng lặp cho từng chủ đề.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="screen-roadmap" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-app-dark">Lộ trình 🚀</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5 space-y-4">
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-blue-100 border-l-4 border-l-blue-600">
+                        <span class="text-xs font-bold text-blue-600">GIAI ĐOẠN 1</span>
+                        <h4 class="font-display text-base text-app-dark mt-1">Luyện tập chuyên sâu Ngữ pháp & Từ vựng AI</h4>
+                    </div>
+                </div>
+            </div>
+
+            <div id="screen-stats" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-app-dark">Thống kê 📊</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5">
+                    <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100 flex items-center justify-around text-center">
+                        <div>
+                            <span id="stats-streak" class="font-display text-3xl text-orange-500">7</span>
+                            <p class="text-xs text-gray-400 mt-1">Streak</p>
+                        </div>
+                        <div class="w-[1px] h-10 bg-gray-100"></div>
+                        <div>
+                            <span id="stats-xp" class="font-display text-3xl text-blue-600">850</span>
+                            <p class="text-xs text-gray-400 mt-1">XP</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="screen-profile" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-100"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-app-dark">Cá nhân 👤</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5 space-y-4">
+                    <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center">
+                        <div id="profile-avatar" class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3 font-display shadow-inner">SZ</div>
+                        <h3 id="profile-name" class="font-display text-xl text-app-dark">Sĩ tử</h3>
+                        <p id="profile-target" class="text-xs text-gray-400 mt-0.5">Mục tiêu 9+ Tiếng Anh (Cấu trúc mới)</p>
+                        
+                        <button onclick="editProfile()" class="mt-4 bg-blue-50 text-blue-600 text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-blue-100 transition-colors shadow-sm inline-block">
+                            <i class="fa-solid fa-pen-to-square mr-1.5"></i> Chỉnh sửa hồ sơ
+                        </button>
+                    </div>
+
+                    <button onclick="handleLogout()" class="w-full bg-red-50 text-red-600 font-bold py-3.5 rounded-2xl hover:bg-red-100 transition-all text-sm">
+                        <i class="fa-solid fa-right-from-bracket mr-2"></i> Đăng xuất tài khoản
+                    </button>
+                </div>
+            </div>
+
+            <!-- MÀN HÌNH LÀM QUIZ TRẮC NGHIỆM CHUNG -->
+            <div id="screen-quiz" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-100"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 id="quiz-header-title" class="font-display text-lg text-app-dark">Luyện tập AI 🧪</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5">
+                    <div class="flex justify-between items-center mb-6">
+                        <span class="text-sm font-semibold text-gray-400">Câu <span id="quiz-current">1</span>/<span id="quiz-total">5</span></span>
+                        <div class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">+10 XP</div>
+                    </div>
+                    <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 mb-6">
+                        <p id="quiz-question" class="text-[17px] text-app-dark font-medium leading-relaxed">Đang tải câu hỏi từ AI...</p>
+                    </div>
+                    <div id="quiz-options" class="flex flex-col gap-3"></div>
+                </div>
+                <div id="quiz-summary" class="absolute inset-0 bg-white z-30 hidden flex-col items-center justify-center p-6 text-center">
+                    <div class="text-[80px] mb-4">🎉</div>
+                    <h2 class="font-display text-3xl text-app-dark mb-2">Hoàn thành xuất sắc!</h2>
+                    <p class="font-display text-4xl text-blue-600 mb-8" id="quiz-xp-earned">+0</p>
+                    <button onclick="goHome()" class="w-full max-w-sm bg-blue-600 text-white font-bold py-4 rounded-2xl">Về trang chủ</button>
+                </div>
+            </div>
+
+            <div id="screen-focus" class="app-screen absolute inset-0 bg-rose-50 z-20 hidden flex-col">
+                <div class="px-5 pt-12 pb-4 flex items-center justify-between">
+                    <button onclick="goHome()" class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-rose-600 shadow-sm"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-rose-800">Focus Mode 🍅</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 flex flex-col items-center justify-center p-6 -mt-10">
+                    <div class="w-64 h-64 bg-white rounded-full shadow flex flex-col items-center justify-center border-[8px] border-rose-100">
+                        <h1 id="timer-display" class="font-display text-6xl text-rose-600">25:00</h1>
+                    </div>
+                    <div class="flex gap-4 mt-10">
+                        <button onclick="resetTimer()" class="w-14 h-14 bg-white text-rose-400 rounded-2xl flex items-center justify-center text-xl shadow-sm"><i class="fa-solid fa-rotate-right"></i></button>
+                        <button id="btn-timer-toggle" onclick="toggleTimer()" class="w-20 h-14 bg-rose-500 text-white rounded-2xl flex items-center justify-center text-xl shadow-lg"><i class="fa-solid fa-play"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="screen-tutor" class="app-screen absolute inset-0 bg-white z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center shadow-sm border-b border-gray-100 z-10 relative">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600 mr-4"><i class="fa-solid fa-arrow-left"></i></button>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-xl">🤖</div>
+                        <div>
+                            <h2 class="font-display text-[16px] text-app-dark">Scorey Tutor</h2>
+                            <p class="text-[11px] text-green-500 font-semibold">Gemini AI</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-5 flex flex-col gap-4 bg-[#f8fafc]">
+                    <div class="flex gap-3 max-w-[85%]">
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">🤖</div>
+                        <div class="bg-white border border-gray-100 p-3 rounded-2xl rounded-tl-none shadow-sm text-[15px] text-app-text">
+                            Chào bạn! Mình là Scorey, gia sư AI chuyên sinh đề ôn thi chuẩn cấu trúc 2025+. Cứ hỏi mình nhé! 🐘✨
+                        </div>
+                    </div>
+                </div>
+                <div class="p-4 bg-white border-t border-gray-100">
+                    <div class="flex items-center bg-gray-50 border border-gray-200 rounded-full p-1.5 pr-2">
+                        <input type="text" id="chat-input" placeholder="Nhập câu hỏi..." class="flex-1 bg-transparent border-none outline-none px-4 text-[15px]" onkeypress="handleChatKey(event)">
+                        <button onclick="sendChatMessage()" class="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BOTTOM NAVIGATION -->
+        <div id="bottom-nav" class="absolute bottom-0 w-full bg-white border-t border-gray-100 flex justify-between items-center px-6 py-4 pb-6 rounded-t-[30px] shadow z-50 transition-transform duration-300">
+            <button onclick="goHome()" class="flex flex-col items-center gap-1.5 w-16 text-blue-600">
+                <i class="fa-solid fa-house text-xl"></i>
+                <span class="text-[10px] font-bold">Trang chủ</span>
+            </button>
+            <button onclick="openScreen('screen-roadmap')" class="flex flex-col items-center gap-1.5 w-16 text-gray-400">
+                <i class="fa-solid fa-flag text-xl"></i>
+                <span class="text-[10px]">Lộ trình</span>
+            </button>
+            <button onclick="openScreen('screen-stats')" class="flex flex-col items-center gap-1.5 w-16 text-gray-400">
+                <i class="fa-solid fa-chart-simple text-xl"></i>
+                <span class="text-[10px]">Thống kê</span>
+            </button>
+            <button onclick="openScreen('screen-profile')" class="flex flex-col items-center gap-1.5 w-16 text-gray-400">
+                <i class="fa-regular fa-user text-xl"></i>
+                <span class="text-[10px]">Cá nhân</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
