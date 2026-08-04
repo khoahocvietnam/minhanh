@@ -43,12 +43,12 @@
         
         <div class="flex-1 relative overflow-hidden">
             
-            <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ (AUTH) -->
+            <!-- MÀN HÌNH ĐĂNG NHẬP / ĐĂNG KÝ -->
             <div id="screen-auth" class="app-screen absolute inset-0 bg-white z-50 flex flex-col justify-between p-6">
                 <div class="pt-12 text-center">
                     <div class="w-20 h-20 bg-blue-100 rounded-3xl mx-auto flex items-center justify-center text-4xl mb-4 shadow-inner">🐘</div>
                     <h1 class="font-display text-3xl text-blue-900">Score<span class="text-blue-600">Up</span></h1>
-                    <p class="text-sm text-gray-400 mt-1">Cấu trúc chuẩn Bộ GD&ĐT • Ôn thi THPT Mới</p>
+                    <p class="text-sm text-gray-400 mt-1">Cấu trúc 2025+ • AI Ôn thi THPT Quốc Gia</p>
                 </div>
 
                 <div class="space-y-4 my-auto">
@@ -100,7 +100,7 @@
                 <div class="px-5 -mt-2 relative z-30">
                     <div class="bg-white rounded-3xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
                         <h2 class="font-display text-[1.35rem] text-app-dark leading-tight">Xin chào, <span id="greeting-name">Sĩ tử</span>! 👋</h2>
-                        <p class="text-app-text text-[15px] mt-1 mb-4">Hôm nay bạn muốn luyện tập kỹ năng nào?</p>
+                        <p class="text-app-text text-[15px] mt-1 mb-4">Hôm nay bạn muốn luyện tập chuyên đề nào?</p>
                         
                         <div class="flex gap-3">
                             <div class="flex-1 bg-[#fff6ed] rounded-2xl py-2.5 px-3 flex flex-col items-center justify-center border border-orange-50">
@@ -130,16 +130,16 @@
                         <p class="text-[12px] text-gray-400 font-medium mt-0.5">Định hướng 2025+</p>
                     </button>
 
-                    <button onclick="openScreen('screen-quiz')" class="bg-white rounded-[28px] p-4 text-left shadow-sm relative hover:bg-gray-50 border border-emerald-100 transition-all">
+                    <button onclick="openScreen('screen-grammar')" class="bg-white rounded-[28px] p-4 text-left shadow-sm relative hover:bg-gray-50 border border-emerald-100 transition-all">
                         <div class="w-14 h-14 bg-gradient-to-br from-emerald-200 to-emerald-400 rounded-[20px] flex items-center justify-center text-3xl mb-3 app-icon border border-emerald-400/30">🧪</div>
                         <h3 class="font-display text-[17px] text-app-dark leading-tight">Grammar Lab</h3>
-                        <p class="text-[12px] text-gray-400 font-medium mt-0.5 text-emerald-600">Đọc điền & Ngữ pháp</p>
+                        <p class="text-[12px] text-gray-400 font-medium mt-0.5 text-emerald-600">Ngữ pháp theo chuyên đề</p>
                     </button>
 
                     <button onclick="openScreen('screen-vocab')" class="bg-white rounded-[28px] p-4 text-left shadow-sm relative hover:bg-gray-50 transition-all">
                         <div class="w-14 h-14 bg-gradient-to-br from-purple-200 to-purple-400 rounded-[20px] flex items-center justify-center text-3xl mb-3 app-icon border border-purple-400/30">🛍️</div>
                         <h3 class="font-display text-[17px] text-app-dark leading-tight">Vocab Store</h3>
-                        <p class="text-[12px] text-gray-400 font-medium mt-0.5">Từ vựng SGK mới</p>
+                        <p class="text-[12px] text-gray-400 font-medium mt-0.5">Từ vựng theo Unit SGK</p>
                     </button>
 
                     <button onclick="openScreen('screen-patterns')" class="bg-white rounded-[28px] p-4 text-left shadow-sm relative hover:bg-gray-50 transition-all">
@@ -157,7 +157,7 @@
                     <button onclick="openScreen('screen-mock')" class="bg-white rounded-[28px] p-4 text-left shadow-sm relative hover:bg-gray-50 transition-all">
                         <div class="w-14 h-14 bg-gradient-to-br from-red-200 to-red-400 rounded-[20px] flex items-center justify-center text-3xl mb-3 app-icon border border-red-400/30">📝</div>
                         <h3 class="font-display text-[17px] text-app-dark leading-tight">AI Mock Tests</h3>
-                        <p class="text-[12px] text-gray-400 font-medium mt-0.5 text-red-600">Tạo đề bằng AI 🤖</p>
+                        <p class="text-[12px] text-gray-400 font-medium mt-0.5 text-red-600">Đề thi chuẩn 40 câu 🤖</p>
                     </button>
                 </div>
 
@@ -174,7 +174,7 @@
                 </div>
             </div>
 
-            <!-- CÁC MÀN HÌNH PHỤ -->
+            <!-- CÁC MÀN HÌNH CHUYÊN ĐỀ -->
             <div id="screen-starthere" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
                 <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
                     <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
@@ -184,13 +184,61 @@
                 <div class="flex-1 overflow-y-auto p-5 space-y-4">
                     <div class="bg-white p-5 rounded-3xl shadow-sm border border-gray-100">
                         <h3 class="font-display text-xl text-blue-900 mb-2">Cấu trúc đề mới 2025+</h3>
-                        <p class="text-sm text-gray-600 leading-relaxed mb-3">Đề thi gồm 40 câu hỏi trắc nghiệm (50 phút), tập trung tối đa vào kỹ năng đọc điền, sắp xếp câu và đọc hiểu thực tế.</p>
-                        <div class="bg-blue-50 p-3 rounded-2xl text-xs text-blue-800 font-medium">✨ Không còn phần phát âm, trọng âm độc lập mà lồng ghép toàn bộ vào ngữ cảnh bài đọc!</div>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-3">Đề thi gồm 40 câu trắc nghiệm (50 phút), tập trung kiểm tra năng lực sử dụng ngôn ngữ thực tế qua các phần đọc điền, sắp xếp câu và đọc hiểu chuyên sâu.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- KHO TỪ VỰNG MỞ RỘNG SGK MỚI -->
+            <!-- KHO NGỮ PHÁP THEO CHUYÊN ĐỀ -->
+            <div id="screen-grammar" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
+                <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
+                    <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
+                    <h2 class="font-display text-lg text-app-dark">Grammar Lab 🧪</h2>
+                    <div class="w-10"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto p-5 space-y-3">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Chọn chuyên đề ôn tập:</p>
+                    
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Thì & Sự phối hợp thì</span>
+                            <h4 class="font-display text-base text-app-dark mt-1">Tenses & Sequence of Tenses</h4>
+                        </div>
+                        <button onclick="startAIGrammarQuiz('Thì và sự phối hợp thì')" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-emerald-700">Luyện AI</button>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Câu điều kiện & Giả định</span>
+                            <h4 class="font-display text-base text-app-dark mt-1">Conditionals & Subjunctives</h4>
+                        </div>
+                        <button onclick="startAIGrammarQuiz('Câu điều kiện và mệnh đề giả định')" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-emerald-700">Luyện AI</button>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Mệnh đề quan hệ & Rút gọn</span>
+                            <h4 class="font-display text-base text-app-dark mt-1">Relative Clauses & Reduced Clauses</h4>
+                        </div>
+                        <button onclick="startAIGrammarQuiz('Mệnh đề quan hệ và rút gọn mệnh đề')" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-emerald-700">Luyện AI</button>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Câu bị động & Đảo ngữ</span>
+                            <h4 class="font-display text-base text-app-dark mt-1">Passive Voice & Inversion</h4>
+                        </div>
+                        <button onclick="startAIGrammarQuiz('Câu bị động và đảo ngữ')" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-emerald-700">Luyện AI</button>
+                    </div>
+
+                    <!-- BÀI TẬP TỔNG HỢP TẤT CẢ NGỮ PHÁP -->
+                    <button onclick="startAIAllGrammarTest()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold p-4 rounded-2xl shadow-md text-sm mt-4 hover:opacity-90">
+                        ⚡ Kiểm tra tổng hợp toàn bộ Ngữ Pháp (AI Test)
+                    </button>
+                </div>
+            </div>
+
+            <!-- KHO TỪ VỰNG THEO CHUYÊN ĐỀ SGK MỚI -->
             <div id="screen-vocab" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
                 <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
                     <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
@@ -198,36 +246,47 @@
                     <div class="w-10"></div>
                 </div>
                 <div class="flex-1 overflow-y-auto p-5 space-y-3">
+                    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Chọn chủ đề từ vựng SGK mới:</p>
+                    
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
                         <div>
                             <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md">Unit 1-3</span>
-                            <h4 class="font-display text-base text-app-dark mt-1">Life Stories & Generation Gap</h4>
-                            <p class="text-xs text-gray-400 mt-0.5">25 từ vựng trọng điểm SGK 12 mới</p>
+                            <h4 class="font-display text-base text-app-dark mt-1">Life Stories & Generations</h4>
                         </div>
-                        <button onclick="alert('Đã mở bộ từ vựng Unit 1-3!')" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold">Học ngay</button>
+                        <button onclick="startAIVocabQuiz('Unit 1-3: Life Stories & Generations')" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-purple-700">Luyện AI</button>
                     </div>
 
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
                         <div>
                             <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md">Unit 4-6</span>
                             <h4 class="font-display text-base text-app-dark mt-1">Urbanisation & Smart Cities</h4>
-                            <p class="text-xs text-gray-400 mt-0.5">30 từ vựng chuyên đề Đô thị hóa</p>
                         </div>
-                        <button onclick="alert('Đã mở bộ từ vựng Unit 4-6!')" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold">Học ngay</button>
+                        <button onclick="startAIVocabQuiz('Unit 4-6: Urbanisation & Smart Cities')" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-purple-700">Luyện AI</button>
                     </div>
 
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
                         <div>
                             <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md">Unit 7-9</span>
                             <h4 class="font-display text-base text-app-dark mt-1">The Green Movement & Ecology</h4>
-                            <p class="text-xs text-gray-400 mt-0.5">Cụm từ hay gặp trong bài đọc môi trường</p>
                         </div>
-                        <button onclick="alert('Đã mở bộ từ vựng Môi trường!')" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold">Học ngay</button>
+                        <button onclick="startAIVocabQuiz('Unit 7-9: Green Movement & Ecology')" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-purple-700">Luyện AI</button>
                     </div>
+
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md">Unit 10-12</span>
+                            <h4 class="font-display text-base text-app-dark mt-1">Artificial Intelligence & Career</h4>
+                        </div>
+                        <button onclick="startAIVocabQuiz('Unit 10-12: Artificial Intelligence & Career')" class="bg-purple-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-purple-700">Luyện AI</button>
+                    </div>
+
+                    <!-- BÀI TẬP TỔNG HỢP TẤT CẢ TỪ VỰNG -->
+                    <button onclick="startAIAllVocabTest()" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold p-4 rounded-2xl shadow-md text-sm mt-4 hover:opacity-90">
+                        ⚡ Kiểm tra tổng hợp toàn bộ Từ Vựng (AI Test)
+                    </button>
                 </div>
             </div>
 
-            <!-- CẤU TRÚC ĐỀ THI 40 CÂU -->
             <div id="screen-patterns" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
                 <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
                     <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
@@ -238,27 +297,23 @@
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                         <span class="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">Phần 1 (12 câu)</span>
                         <h4 class="font-display font-bold text-blue-900 mt-1">Đọc điền thông báo / tờ rơi</h4>
-                        <p class="text-xs text-gray-500 mt-1">Kiểm tra từ vựng, từ loại và ngữ pháp thực tiễn.</p>
                     </div>
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                         <span class="text-xs font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded-md">Phần 2 (5 câu)</span>
                         <h4 class="font-display font-bold text-orange-900 mt-1">Sắp xếp đoạn hội thoại / lá thư</h4>
-                        <p class="text-xs text-gray-500 mt-1">Đánh giá tư duy logic mạch lạc văn bản.</p>
                     </div>
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                         <span class="text-xs font-bold text-purple-600 bg-purple-50 px-2 py-1 rounded-md">Phần 3 (5 câu)</span>
-                        <h4 class="font-display font-bold text-purple-900 mt-1">Điền câu / cụm từ dài khuyết thiếu</h4>
-                        <p class="text-xs text-gray-500 mt-1">Xác định cấu trúc câu và mạch ý nghĩa.</p>
+                        <h4 class="font-display font-bold text-purple-900 mt-1">Điền câu / cụm từ khuyết thiếu</h4>
                     </div>
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                         <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">Phần 4 (18 câu)</span>
                         <h4 class="font-display font-bold text-emerald-900 mt-1">Đọc hiểu chuyên sâu (2 bài đọc)</h4>
-                        <p class="text-xs text-gray-500 mt-1">Chiếm 45% tổng số điểm bài thi.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- AI MOCK TESTS & TẠO ĐỀ BẰNG AI -->
+            <!-- AI MOCK TESTS (CHUẨN 40 CÂU BGD) -->
             <div id="screen-mock" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
                 <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
                     <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600"><i class="fa-solid fa-arrow-left"></i></button>
@@ -267,10 +322,10 @@
                 </div>
                 <div class="flex-1 overflow-y-auto p-5 space-y-4">
                     <div class="bg-gradient-to-r from-red-500 to-pink-600 p-5 rounded-3xl text-white shadow-md">
-                        <h3 class="font-display text-xl mb-1">🤖 Trợ lý AI Sinh Đề Thi</h3>
-                        <p class="text-xs opacity-90 mb-3">Tạo đề thi thử độc quyền theo chuẩn form mới 40 câu hỏi lập tức.</p>
-                        <button onclick="generateAIMockTest()" class="bg-white text-red-600 font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-gray-50 transition-colors">
-                            <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> Tạo đề thi AI ngay
+                        <h3 class="font-display text-xl mb-1">🤖 Trợ lý AI Sinh Đề Chuẩn 40 Câu</h3>
+                        <p class="text-xs opacity-90 mb-3">Tạo bộ đề thi thử độc quyền cấu trúc BGD mới nhất.</p>
+                        <button onclick="generateFullAIMockTest()" class="bg-white text-red-600 font-bold px-4 py-2.5 rounded-xl text-xs shadow hover:bg-gray-50 transition-colors">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-1.5"></i> Tạo đề thi 40 câu ngay
                         </button>
                     </div>
 
@@ -280,7 +335,7 @@
                                 <span class="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-md">Đề chuẩn 2026</span>
                                 <h4 class="font-display text-sm font-bold text-app-dark mt-1">Đề thi thử số 01 (Form BGD)</h4>
                             </div>
-                            <button onclick="alert('Đã sẵn sàng mở đề!')" class="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-bold">Làm bài</button>
+                            <button onclick="startTest('Đề 01')" class="bg-red-500 text-white px-4 py-2 rounded-xl text-xs font-bold">Làm bài</button>
                         </div>
                     </div>
                 </div>
@@ -295,7 +350,7 @@
                 <div class="flex-1 overflow-y-auto p-5 space-y-3">
                     <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
                         <h4 class="font-display text-sm font-bold text-app-dark">Cập nhật hệ thống</h4>
-                        <p class="text-xs text-gray-500 mt-1">Đã tích hợp ngân hàng câu hỏi mới theo chương trình 2025+.</p>
+                        <p class="text-xs text-gray-500 mt-1">Đã bật tính năng AI sinh câu hỏi không trùng lặp cho từng chủ đề.</p>
                     </div>
                 </div>
             </div>
@@ -309,7 +364,7 @@
                 <div class="flex-1 overflow-y-auto p-5 space-y-4">
                     <div class="bg-white p-5 rounded-3xl shadow-sm border border-blue-100 border-l-4 border-l-blue-600">
                         <span class="text-xs font-bold text-blue-600">GIAI ĐOẠN 1</span>
-                        <h4 class="font-display text-base text-app-dark mt-1">Luyện kỹ năng đọc điền & từ vựng SGK</h4>
+                        <h4 class="font-display text-base text-app-dark mt-1">Luyện tập chuyên sâu Ngữ pháp & Từ vựng AI</h4>
                     </div>
                 </div>
             </div>
@@ -345,7 +400,7 @@
                     <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 text-center">
                         <div id="profile-avatar" class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3 font-display shadow-inner">SZ</div>
                         <h3 id="profile-name" class="font-display text-xl text-app-dark">Sĩ tử</h3>
-                        <p id="profile-target" class="text-xs text-gray-400 mt-0.5">Mục tiêu 9+ Tiếng Anh (Chương trình mới)</p>
+                        <p id="profile-target" class="text-xs text-gray-400 mt-0.5">Mục tiêu 9+ Tiếng Anh (Cấu trúc mới)</p>
                         
                         <button onclick="editProfile()" class="mt-4 bg-blue-50 text-blue-600 text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-blue-100 transition-colors shadow-sm inline-block">
                             <i class="fa-solid fa-pen-to-square mr-1.5"></i> Chỉnh sửa hồ sơ
@@ -358,27 +413,28 @@
                 </div>
             </div>
 
+            <!-- MÀN HÌNH LÀM QUIZ TRẮC NGHIỆM CHUNG -->
             <div id="screen-quiz" class="app-screen absolute inset-0 bg-app-bg z-20 hidden flex-col">
                 <div class="bg-white px-5 pt-12 pb-4 flex items-center justify-between shadow-sm border-b border-gray-100">
                     <button onclick="goHome()" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-100"><i class="fa-solid fa-arrow-left"></i></button>
-                    <h2 class="font-display text-lg text-app-dark">Grammar Lab 🧪</h2>
+                    <h2 id="quiz-header-title" class="font-display text-lg text-app-dark">Luyện tập AI 🧪</h2>
                     <div class="w-10"></div>
                 </div>
                 <div class="flex-1 overflow-y-auto p-5">
                     <div class="flex justify-between items-center mb-6">
-                        <span class="text-sm font-semibold text-gray-400">Câu <span id="quiz-current">1</span>/3</span>
+                        <span class="text-sm font-semibold text-gray-400">Câu <span id="quiz-current">1</span>/<span id="quiz-total">5</span></span>
                         <div class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-bold">+10 XP</div>
                     </div>
                     <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 mb-6">
-                        <p id="quiz-question" class="text-[17px] text-app-dark font-medium leading-relaxed">Loading...</p>
+                        <p id="quiz-question" class="text-[17px] text-app-dark font-medium leading-relaxed">Đang tải câu hỏi từ AI...</p>
                     </div>
                     <div id="quiz-options" class="flex flex-col gap-3"></div>
                 </div>
                 <div id="quiz-summary" class="absolute inset-0 bg-white z-30 hidden flex-col items-center justify-center p-6 text-center">
                     <div class="text-[80px] mb-4">🎉</div>
-                    <h2 class="font-display text-3xl text-app-dark mb-2">Tuyệt vời!</h2>
+                    <h2 class="font-display text-3xl text-app-dark mb-2">Hoàn thành xuất sắc!</h2>
                     <p class="font-display text-4xl text-blue-600 mb-8" id="quiz-xp-earned">+0</p>
-                    <button onclick="goHome()" class="w-full max-w-sm bg-blue-600 text-white font-bold py-4 rounded-2xl">Tiếp tục</button>
+                    <button onclick="goHome()" class="w-full max-w-sm bg-blue-600 text-white font-bold py-4 rounded-2xl">Về trang chủ</button>
                 </div>
             </div>
 
@@ -414,7 +470,7 @@
                     <div class="flex gap-3 max-w-[85%]">
                         <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">🤖</div>
                         <div class="bg-white border border-gray-100 p-3 rounded-2xl rounded-tl-none shadow-sm text-[15px] text-app-text">
-                            Chào bạn! Mình là Scorey, gia sư AI chuyên ôn thi theo cấu trúc 40 câu mới. Cứ hỏi mình nhé! 🐘✨
+                            Chào bạn! Mình là Scorey, gia sư AI chuyên sinh đề ôn thi chuẩn cấu trúc 2025+. Cứ hỏi mình nhé! 🐘✨
                         </div>
                     </div>
                 </div>
