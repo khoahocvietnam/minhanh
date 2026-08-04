@@ -1,3 +1,9 @@
+// ================= KẾT NỐI SUPABASE =================
+const SUPABASE_URL = 'https://ifhskkqjttkucirpztsi.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmaHNra3FqdHRrdWNpcnB6dHNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4Mjk2NzksImV4cCI6MjEwMTQwNTY3OX0.n1sMPDMMRTcM72XKWyVKZJg3H67KPnSQHv03NKi8i3M';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const CURRENT_USER_ID = 'user_default';
 // ================= STATE & LOCALSTORAGE (CÁ NHÂN HÓA ĐỘNG) =================
 let userName = localStorage.getItem('scoreup_name') || "Minh Anh";
 let userTarget = localStorage.getItem('scoreup_target') || "Sĩ tử 2K7 • Mục tiêu 9+ Tiếng Anh";
