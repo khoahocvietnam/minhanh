@@ -3,48 +3,115 @@ const SUPABASE_URL = 'https://ifhskkqjttkucirpztsi.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmaHNra3FqdHRrdWNpcnB6dHNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4Mjk2NzksImV4cCI6MjEwMTQwNTY3OX0.n1sMPDMMRTcM72XKWyVKZJg3H67KPnSQHv03NKi8i3M';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const CURRENT_USER_ID = 'user_default'; 
 
-// State ứng dụng
-let userName = "Minh Anh";
+let currentUser = null;
+let userName = "Sĩ tử";
 let userTarget = "Sĩ tử 2K7 • Mục tiêu 9+ Tiếng Anh";
 let userXP = 850;
 let streak = 7;
 
-// Tự động tải dữ liệu từ Supabase Cloud khi mở trang
+// Kiểm tra trạng thái đăng nhập khi mở app
 window.addEventListener('DOMContentLoaded', async () => {
-    await fetchUserData();
-    updateDynamicUI();
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session) {
+        currentUser = session.user;
+        await fetchUserData();
+        showHomeScreen();
+    } else {
+        showAuthScreen();
+    }
 });
 
+// ================= AUTH LOGIC =================
+async function handleRegister() {
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value.trim();
+
+    if(!email || !password) {
+        alert("Vui lòng nhập đầy đủ email và mật khẩu!");
+        return;
+    }
+
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) {
+        alert("Lỗi đăng ký: " + error.message);
+    } else {
+        alert("🎉 Đăng ký thành công! Hãy kiểm tra email hoặc đăng nhập ngay.");
+    }
+}
+
+async function handleLogin() {
+    const email = document.getElementById('auth-email').value.trim();
+    const password = document.getElementById('auth-password').value.trim();
+
+    if(!email || !password) {
+        alert("Vui lòng nhập đầy đủ email và mật khẩu!");
+        return;
+    }
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+        alert("Đăng nhập thất bại: " + error.message);
+    } else {
+        currentUser = data.user;
+        await fetchUserData();
+        showHomeScreen();
+    }
+}
+
+async function handleLogout() {
+    await supabase.auth.signOut();
+    currentUser = null;
+    showAuthScreen();
+}
+
+function showAuthScreen() {
+    document.getElementById('screen-auth').classList.remove('hidden');
+    document.getElementById('screen-home').classList.add('hidden');
+    const bottomNav = document.getElementById('bottom-nav');
+    if(bottomNav) bottomNav.style.transform = 'translateY(100%)';
+}
+
+function showHomeScreen() {
+    document.getElementById('screen-auth').classList.add('hidden');
+    goHome();
+}
+
+// ================= CLOUD DATABASE SYNC =================
 async function fetchUserData() {
+    if (!currentUser) return;
     try {
         const { data, error } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', CURRENT_USER_ID)
+            .eq('id', currentUser.id)
             .single();
 
-        if (error) {
-            console.error('Lỗi tải dữ liệu từ Supabase:', error.message);
-            return;
-        }
-
-        if (data) {
-            userName = data.full_name || "Minh Anh";
+        if (error || !data) {
+            // Nếu chưa có profile, tạo dòng mới cho user này
+            await supabase.from('profiles').insert([{
+                id: currentUser.id,
+                full_name: currentUser.email.split('@')[0],
+                target: userTarget,
+                streak: 7,
+                xp: 850
+            }]);
+        } else {
+            userName = data.full_name || currentUser.email.split('@')[0];
             userTarget = data.target || "Sĩ tử 2K7";
             userXP = data.xp || 850;
             streak = data.streak || 7;
-            updateDynamicUI();
         }
+        updateDynamicUI();
     } catch (err) {
-        console.error('Lỗi kết nối database:', err);
+        console.error('Lỗi tải dữ liệu:', err);
     }
 }
 
 async function saveStateToCloud() {
+    if (!currentUser) return;
     try {
-        const { error } = await supabase
+        await supabase
             .from('profiles')
             .update({
                 full_name: userName,
@@ -53,13 +120,9 @@ async function saveStateToCloud() {
                 streak: streak,
                 updated_at: new Date()
             })
-            .eq('id', CURRENT_USER_ID);
-
-        if (error) {
-            console.error('Lỗi lưu dữ liệu lên Supabase:', error.message);
-        }
+            .eq('id', currentUser.id);
     } catch (err) {
-        console.error('Lỗi hệ thống khi lưu:', err);
+        console.error('Lỗi lưu Cloud:', err);
     }
 }
 
@@ -75,7 +138,7 @@ function updateDynamicUI() {
     
     if(profileAvatar) {
         const initials = userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-        profileAvatar.innerText = initials || 'MA';
+        profileAvatar.innerText = initials || 'SZ';
     }
 
     const xpDisplay = document.getElementById('xp-display');
@@ -102,7 +165,7 @@ async function editProfile() {
 
     updateDynamicUI();
     await saveStateToCloud();
-    alert("🎉 Đã cập nhật và đồng bộ hồ sơ lên Cloud thành công!");
+    alert("🎉 Đã cập nhật hồ sơ lên Cloud thành công!");
 }
 
 async function updateXP(amount) {
@@ -129,7 +192,7 @@ function openScreen(screenId) {
         target.classList.add('screen-enter');
     }
     const bottomNav = document.getElementById('bottom-nav');
-    if(screenId !== 'screen-home') {
+    if(screenId !== 'screen-home' && screenId !== 'screen-auth') {
         if(bottomNav) bottomNav.style.transform = 'translateY(100%)';
         if(screenId === 'screen-quiz') initQuiz();
     }
@@ -279,7 +342,7 @@ function resetTimer() {
     }
 }
 
-// ================= AI TUTOR CHAT (BẢO MẬT VERCEL) =================
+// ================= AI TUTOR CHAT =================
 function appendMessage(text, sender) {
     const container = document.getElementById('chat-messages');
     if(!container) return;
