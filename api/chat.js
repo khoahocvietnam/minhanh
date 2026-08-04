@@ -15,7 +15,8 @@ export default async function handler(req, res) {
         
         const payload = {
             contents: [{ parts: [{ text: message }] }],
-            systemInstruction: {
+            // Sử dụng system_instruction (có dấu gạch dưới) chuẩn theo REST API của Google Gemini
+            system_instruction: {
                 parts: [{ text: "Bạn tên là Scorey, một chú voi AI thông minh làm gia sư tiếng Anh cho học sinh cấp 3 tại Việt Nam ôn thi THPT Quốc Gia. Hãy luôn trả lời bằng tiếng Việt, giải thích ngữ pháp ngắn gọn, dễ hiểu, dùng ngôn ngữ GenZ thân thiện, hay dùng emoji. Câu trả lời dưới 100 chữ." }]
             }
         };
@@ -32,10 +33,11 @@ export default async function handler(req, res) {
             const aiText = data.candidates[0].content.parts[0].text;
             return res.status(200).json({ text: aiText });
         } else {
-            return res.status(500).json({ error: 'Không nhận được phản hồi từ Gemini' });
+            console.error("Gemini API Error Response:", JSON.stringify(data));
+            return res.status(500).json({ error: data.error?.message || 'Không nhận được phản hồi từ Gemini' });
         }
     } catch (error) {
-        console.error("API Error:", error);
-        return res.status(500).json({ error: 'Lỗi hệ thống' });
+        console.error("Server System Error:", error);
+        return res.status(500).json({ error: 'Lỗi hệ thống server' });
     }
 }
