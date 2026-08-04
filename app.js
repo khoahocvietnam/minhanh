@@ -1,9 +1,35 @@
-// Khởi tạo State và tải dữ liệu đã lưu từ trình duyệt (localStorage)
+// ================= STATE & LOCALSTORAGE (CÁ NHÂN HÓA ĐỘNG) =================
+let userName = localStorage.getItem('scoreup_name') || "Minh Anh";
+let userTarget = localStorage.getItem('scoreup_target') || "Sĩ tử 2K7 • Mục tiêu 9+ Tiếng Anh";
 let userXP = parseInt(localStorage.getItem('scoreup_xp')) || 850;
 let streak = parseInt(localStorage.getItem('scoreup_streak')) || 7;
 
-// Cập nhật lên giao diện ngay khi load trang
 window.addEventListener('DOMContentLoaded', () => {
+    updateDynamicUI();
+});
+
+function saveState() {
+    localStorage.setItem('scoreup_xp', userXP);
+    localStorage.setItem('scoreup_streak', streak);
+    localStorage.setItem('scoreup_name', userName);
+    localStorage.setItem('scoreup_target', userTarget);
+}
+
+function updateDynamicUI() {
+    const greetingName = document.getElementById('greeting-name');
+    const profileName = document.getElementById('profile-name');
+    const profileTarget = document.getElementById('profile-target');
+    const profileAvatar = document.getElementById('profile-avatar');
+
+    if(greetingName) greetingName.innerText = userName;
+    if(profileName) profileName.innerText = userName;
+    if(profileTarget) profileTarget.innerText = userTarget;
+    
+    if(profileAvatar) {
+        const initials = userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        profileAvatar.innerText = initials || 'MA';
+    }
+
     const xpDisplay = document.getElementById('xp-display');
     const streakDisplay = document.getElementById('streak-display');
     const statsXp = document.getElementById('stats-xp');
@@ -13,28 +39,37 @@ window.addEventListener('DOMContentLoaded', () => {
     if(streakDisplay) streakDisplay.innerText = streak;
     if(statsXp) statsXp.innerText = userXP;
     if(statsStreak) statsStreak.innerText = streak;
-});
+}
 
-function saveState() {
-    localStorage.setItem('scoreup_xp', userXP);
-    localStorage.setItem('scoreup_streak', streak);
+function editProfile() {
+    const newName = prompt("Nhập tên hiển thị của bạn:", userName);
+    if(newName !== null && newName.trim() !== "") {
+        userName = newName.trim();
+    }
+
+    const newTarget = prompt("Nhập mục tiêu học tập của bạn:", userTarget);
+    if(newTarget !== null && newTarget.trim() !== "") {
+        userTarget = newTarget.trim();
+    }
+
+    saveState();
+    updateDynamicUI();
+    alert("🎉 Đã cập nhật hồ sơ thành công!");
 }
 
 function updateXP(amount) {
     userXP += amount;
     saveState();
-    
-    const xpDisplay = document.getElementById('xp-display');
-    const statsXp = document.getElementById('stats-xp');
-    if(xpDisplay) xpDisplay.innerText = userXP;
-    if(statsXp) statsXp.innerText = userXP;
+    updateDynamicUI();
 
+    const xpDisplay = document.getElementById('xp-display');
     if(xpDisplay) {
         xpDisplay.classList.add('text-green-500', 'scale-125');
         setTimeout(() => xpDisplay.classList.remove('text-green-500', 'scale-125'), 300);
     }
 }
 
+// ================= NAVIGATION =================
 function openScreen(screenId) {
     document.querySelectorAll('.app-screen').forEach(el => {
         el.classList.add('hidden');
@@ -65,7 +100,7 @@ function goHome() {
     if(bottomNav) bottomNav.style.transform = 'translateY(0)';
 }
 
-// Quiz Logic
+// ================= QUIZ LOGIC =================
 const quizData = [
     { q: "I _____ working on this project since last Monday.", options: ["have been", "am", "was", "had"], ans: 0 },
     { q: "If I _____ you, I would study harder for the exam.", options: ["was", "am", "were", "had been"], ans: 2 },
@@ -149,7 +184,7 @@ function finishQuiz() {
     updateXP(quizScore);
 }
 
-// Timer Logic
+// ================= POMODORO TIMER =================
 let timerInterval = null;
 let timeLeft = 25 * 60;
 let isTimerRunning = false;
@@ -196,7 +231,7 @@ function resetTimer() {
     }
 }
 
-// AI Chat Logic (Gọi ngầm qua Vercel Serverless Function /api/chat)
+// ================= AI TUTOR CHAT (BẢO MẬT VERCEL) =================
 function appendMessage(text, sender) {
     const container = document.getElementById('chat-messages');
     if(!container) return;
