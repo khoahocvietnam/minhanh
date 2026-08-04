@@ -5,7 +5,6 @@ export default async function handler(req, res) {
 
     try {
         const { message } = req.body;
-        // Lấy API Key đã được mã hóa an toàn trong phần Environment Variables của Vercel
         const apiKey = process.env.GEMINI_API_KEY;
 
         if (!apiKey) {
