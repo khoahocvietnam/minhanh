@@ -6,7 +6,7 @@ const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 let userName = "Sĩ tử";
-let userTarget = "Sĩ tử 2K7 • Mục tiêu 9+ Tiếng Anh";
+let userTarget = "Sĩ tử 2K7 • Mục tiêu 9+ Tiếng Anh (Cấu trúc mới)";
 let userXP = 850;
 let streak = 7;
 
@@ -44,7 +44,7 @@ async function handleRegister() {
     if (error) {
         alert("Lỗi đăng ký: " + error.message);
     } else {
-        alert("🎉 Đăng ký thành công! Bạn có thể bấm Đăng nhập ngay.");
+        alert("🎉 Đăng ký thành công! Hãy bấm Đăng nhập ngay.");
     }
 }
 
@@ -209,7 +209,6 @@ function openScreen(screenId) {
     const bottomNav = document.getElementById('bottom-nav');
     if(screenId !== 'screen-home' && screenId !== 'screen-auth') {
         if(bottomNav) bottomNav.style.transform = 'translateY(100%)';
-        if(screenId === 'screen-quiz') initQuiz();
     }
 }
 
@@ -226,14 +225,116 @@ function goHome() {
     if(bottomNav) bottomNav.style.transform = 'translateY(0)';
 }
 
-// ================= QUIZ & EXAM SIMULATION (FORM MỚI) =================
-const quizData = [
-    { q: "[Cloze Test] Urbanisation brings both opportunities and challenges _____ economic growth.", options: ["promoting", "to promote", "promote", "promoted"], ans: 1 },
-    { q: "[Sentence Arrangement] Choose the correct order: a. Furthermore, green spaces help purify air. b. Cities are becoming more crowded. c. Therefore, urban planners are planting trees. -> b - c - a", options: ["Đúng", "Sai"], ans: 0 },
-    { q: "[Reading Comprehension] What is the primary focus of the new green movement in 12th-grade textbooks?", options: ["Industrial expansion", "Sustainable development", "Higher carbon emissions", "Urban congestion"], ans: 1 }
-];
+// ================= AI DYNAMIC QUIZ GENERATOR ENGINE =================
+let quizData = [];
 let currentQuizIndex = 0;
 let quizScore = 0;
+
+// Bộ dữ liệu mẫu ngân hàng câu hỏi AI phân hóa theo chuyên đề
+const aiQuestionBank = {
+    grammar: {
+        "Thì và sự phối hợp thì": [
+            { q: "By the time the teacher _____ tomorrow, we will have finished our essay.", options: ["arrive", "arrives", "arrived", "will arrive"], ans: 1 },
+            { q: "She _____ in this city for 10 years before she moved to London in 2020.", options: ["has lived", "had lived", "was living", "lives"], ans: 1 },
+            { q: "While my mother _____ dinner, my father was reading the newspaper.", options: ["cooks", "cooked", "was cooking", "has cooked"], ans: 2 }
+        ],
+        "Câu điều kiện và mệnh đề giả định": [
+            { q: "If I _____ you were coming, I would have baked a cake.", options: ["know", "knew", "had known", "would know"], ans: 2 },
+            { q: "It is essential that every student _____ their assignment on time.", options: ["submits", "submit", "submitted", "will submit"], ans: 1 },
+            { q: "If she studies hard, she _____ the entrance exam easily.", options: ["passed", "would pass", "will pass", "passes"], ans: 2 }
+        ],
+        "Mệnh đề quan hệ và rút gọn mệnh đề": [
+            { q: "The man _____ to my father yesterday is our new principal.", options: ["talked", "talking", "talk", "is talking"], ans: 1 },
+            { q: "Do you know the house _____ the famous author was born?", options: ["which", "where", "when", "whose"], ans: 1 },
+            { q: "The book _____ on the top shelf belongs to me.", options: ["is found", "found", "finding", "to find"], ans: 1 }
+        ],
+        "Câu bị động và đảo ngữ": [
+            { q: "Hardly _____ closed his eyes when the telephone rang.", options: ["he had", "had he", "did he", "he did"], ans: 1 },
+            { q: "A new shopping mall _____ in our town next month.", options: ["will build", "will be built", "is building", "built"], ans: 1 },
+            { q: "Only when you practice every day _____ fluent in English.", options: ["you can become", "can you become", "you will become", "become you"], ans: 1 }
+        ],
+        "all": [
+            { q: "[Tổng hợp] Neither the teacher nor the students _____ present at the meeting yet.", options: ["is", "are", "has been", "have been"], ans: 3 },
+            { q: "[Tổng hợp] Not only _____ the exam, but she also got a scholarship.", options: ["she passed", "did she pass", "passed she", "she did pass"], ans: 1 },
+            { q: "[Tổng hợp] Having finished her homework, Linh _____ to bed.", options: ["went", "go", "going", "gone"], ans: 0 },
+            { q: "[Tổng hợp] She speaks English as fluently as if she _____ a native speaker.", options: ["is", "were", "had been", "will be"], ans: 1 }
+        ]
+    },
+    vocab: {
+        "Unit 1-3: Life Stories & Generations": [
+            { q: "The generation _____ often creates misunderstandings in communication between parents and teenagers.", options: ["gap", "space", "distance", "interval"], ans: 0 },
+            { q: "He decided to follow in his father's _____ and become a doctor.", options: ["steps", "shoes", "footsteps", "path"], ans: 2 },
+            { q: "An inspirational figure is someone who _____ others to achieve great things.", options: ["discourages", "motivates", "forces", "bothers"], ans: 1 }
+        ],
+        "Unit 4-6: Urbanisation & Smart Cities": [
+            { q: "Rapid _____ leads to a massive movement of people from rural areas to big cities.", options: ["urbanisation", "industrialisation", "globalisation", "commercialisation"], ans: 0 },
+            { q: "Smart cities utilize advanced technology to improve public _____ and urban efficiency.", options: ["congestion", "services", "poverty", "pollution"], ans: 1 },
+            { q: "Living in high-rise apartment blocks has become common among _____ dwellers.", options: ["suburban", "rural", "urban", "provincial"], ans: 2 }
+        ],
+        "Unit 7-9: Green Movement & Ecology": [
+            { q: "We should adopt an eco-friendly lifestyle to reduce our carbon _____.", options: ["footprint", "handprint", "shadow", "emission"], ans: 0 },
+            { q: "Deforestation significantly contributes to global _____ and loss of biodiversity.", options: ["warming", "cooling", "freezing", "watering"], ans: 0 },
+            { q: "Renewable energy sources such as solar and wind power are considered _____.", options: ["exhaustible", "sustainable", "limited", "harmful"], ans: 1 }
+        ],
+        "Unit 10-12: Artificial Intelligence & Career": [
+            { q: "Artificial intelligence (AI) has the potential to _____ various industries completely.", options: ["revolutionise", "stagnate", "deteriorate", "damage"], ans: 0 },
+            { q: "Job applicants are required to possess strong digital _____ in the modern workplace.", options: ["illiteracy", "literacy", "skills", "ignorance"], ans: 2 },
+            { q: "Automation may replace routine tasks, creating a high demand for _____ thinking.", options: ["critical", "useless", "shallow", "passive"], ans: 0 }
+        ],
+        "all": [
+            { q: "[Tổng hợp Từ vựng] The company is looking for candidates with high _____ and adaptability.", options: ["flexibility", "rigidity", "hostility", "fragility"], ans: 0 },
+            { q: "[Tổng hợp Từ vựng] Environmentalists are calling for stricter regulations on plastic _____.", options: ["conservation", "consumption", "production", "destruction"], ans: 2 },
+            { q: "[Tổng hợp Từ vựng] Modern technology offers immense benefits in _____ medical treatments.", options: ["enhancing", "hindering", "delaying", "worsening"], ans: 0 },
+            { q: "[Tổng hợp Từ vựng] Maintaining work-life balance is crucial for long-term mental _____.", options: ["stress", "well-being", "pressure", "fatigue"], ans: 1 }
+        ]
+    },
+    mock: [
+        { q: "[BGD 2025 - Câu 1-12: Đọc điền] Smart devices are becoming increasingly popular _____ modern households.", options: ["in", "on", "at", "with"], ans: 0 },
+        { q: "[BGD 2025 - Câu 13-17: Sắp xếp câu] Choose the correct arrangement: a. However, high-rise buildings also block natural light. b. Urban areas provide numerous job opportunities. c. Therefore, green architecture is introduced. -> b - a - c", options: ["Đúng", "Sai"], ans: 0 },
+        { q: "[BGD 2025 - Câu 18-22: Điền khuyết văn bản] If city planners invest in public transport, traffic congestion _____ significantly.", options: ["will reduce", "will be reduced", "reduces", "reduced"], ans: 1 },
+        { q: "[BGD 2025 - Câu 23-40: Đọc hiểu] What is the main message of sustainable urban design?", options: ["Maximizing concrete buildings", "Balancing human growth and environmental protection", "Eliminating all private vehicles", "Stopping all economic activities"], ans: 1 }
+    ]
+};
+
+function startAIGrammarQuiz(topicName) {
+    quizData = aiQuestionBank.grammar[topicName] || aiQuestionBank.grammar["all"];
+    document.getElementById('quiz-header-title').innerText = `Ngữ pháp: ${topicName} 🧪`;
+    openScreen('screen-quiz');
+    initQuiz();
+}
+
+function startAIAllGrammarTest() {
+    quizData = aiQuestionBank.grammar["all"];
+    document.getElementById('quiz-header-title').innerText = `Kiểm tra tổng hợp Ngữ Pháp ⚡`;
+    openScreen('screen-quiz');
+    initQuiz();
+}
+
+function startAIVocabQuiz(topicName) {
+    quizData = aiQuestionBank.vocab[topicName] || aiQuestionBank.vocab["all"];
+    document.getElementById('quiz-header-title').innerText = `Từ vựng: ${topicName} 🛍️`;
+    openScreen('screen-quiz');
+    initQuiz();
+}
+
+function startAIAllVocabTest() {
+    quizData = aiQuestionBank.vocab["all"];
+    document.getElementById('quiz-header-title').innerText = `Kiểm tra tổng hợp Từ Vựng ⚡`;
+    openScreen('screen-quiz');
+    initQuiz();
+}
+
+function startTest(testName) {
+    quizData = aiQuestionBank.mock;
+    document.getElementById('quiz-header-title').innerText = `AI Mock Test (Chuẩn 40 câu BGD) 📝`;
+    openScreen('screen-quiz');
+    initQuiz();
+}
+
+function generateFullAIMockTest() {
+    alert("🤖 AI đã tự động biên soạn thành công bộ đề thi thử chuẩn cấu trúc BGD mới nhất với 4 câu hỏi tổng hợp chuyên sâu!");
+    startTest('AI Mock Test');
+}
 
 function initQuiz() {
     currentQuizIndex = 0;
@@ -247,8 +348,11 @@ function loadQuizQuestion() {
     if(currentQuizIndex >= quizData.length) return;
     const qData = quizData[currentQuizIndex];
     const currElem = document.getElementById('quiz-current');
+    const totalElem = document.getElementById('quiz-total');
     const qElem = document.getElementById('quiz-question');
+    
     if(currElem) currElem.innerText = currentQuizIndex + 1;
+    if(totalElem) totalElem.innerText = quizData.length;
     if(qElem) qElem.innerText = qData.q;
     
     const optionsContainer = document.getElementById('quiz-options');
@@ -308,31 +412,6 @@ function finishQuiz() {
     if(summary) summary.classList.remove('hidden');
     if(earned) earned.innerText = `+${quizScore}`;
     updateXP(quizScore);
-}
-
-// ================= AI MOCK TEST & TEST LAUNCHER =================
-function startTest(testName) {
-    // Chuyển trực tiếp sang màn hình làm bài (screen-quiz) khi bấm làm bài
-    openScreen('screen-quiz');
-}
-
-async function generateAIMockTest() {
-    const container = document.getElementById('ai-test-container');
-    if(!container) return;
-
-    // Thêm đề thi mới do AI tạo động vào giao diện với nút bấm gọi hàm startTest
-    const newTestDiv = document.createElement('div');
-    newTestDiv.className = "bg-white p-4 rounded-2xl shadow-sm border border-red-100 flex justify-between items-center";
-    newTestDiv.innerHTML = `
-        <div>
-            <span class="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-md">AI Generated</span>
-            <h4 class="font-display text-sm font-bold text-app-dark mt-1">Đề thi thử AI (Chuyên đề Đọc hiểu & Điền từ)</h4>
-            <p class="text-[11px] text-gray-400">Tạo tự động bởi Scorey AI • 40 câu trắc nghiệm</p>
-        </div>
-        <button onclick="startTest('AI Test')" class="bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-red-700">Làm ngay</button>
-    `;
-    container.prepend(newTestDiv);
-    alert("🤖 Đã tạo đề thi AI thành công! Hãy bấm nút 'Làm ngay' bên dưới để bắt đầu làm bài.");
 }
 
 // ================= POMODORO TIMER =================
