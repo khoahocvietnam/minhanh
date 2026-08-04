@@ -1,8 +1,9 @@
-// ================= KẾT NỐI SUPABASE =================
+// ================= KẾT NỐI SUPABASE (ĐÃ SỬA XUNG ĐỘT TÊN) =================
 const SUPABASE_URL = 'https://ifhskkqjttkucirpztsi.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmaHNra3FqdHRrdWNpcnB6dHNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4Mjk2NzksImV4cCI6MjEwMTQwNTY3OX0.n1sMPDMMRTcM72XKWyVKZJg3H67KPnSQHv03NKi8i3M';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Dùng biến dbClient thay vì supabase để không bị xung đột với window.supabase của CDN
+const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 let userName = "Sĩ tử";
@@ -12,44 +13,57 @@ let streak = 7;
 
 // Kiểm tra trạng thái đăng nhập khi mở app
 window.addEventListener('DOMContentLoaded', async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-        currentUser = session.user;
-        await fetchUserData();
-        showHomeScreen();
-    } else {
+    try {
+        const { data: { session } } = await dbClient.auth.getSession();
+        if (session && session.user) {
+            currentUser = session.user;
+            await fetchUserData();
+            showHomeScreen();
+        } else {
+            showAuthScreen();
+        }
+    } catch (err) {
+        console.error("Auth Session Error:", err);
         showAuthScreen();
     }
 });
 
 // ================= AUTH LOGIC =================
 async function handleRegister() {
-    const email = document.getElementById('auth-email').value.trim();
-    const password = document.getElementById('auth-password').value.trim();
+    const emailField = document.getElementById('auth-email');
+    const passwordField = document.getElementById('auth-password');
+    if(!emailField || !passwordField) return;
+
+    const email = emailField.value.trim();
+    const password = passwordField.value.trim();
 
     if(!email || !password) {
         alert("Vui lòng nhập đầy đủ email và mật khẩu!");
         return;
     }
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await dbClient.auth.signUp({ email, password });
     if (error) {
         alert("Lỗi đăng ký: " + error.message);
     } else {
-        alert("🎉 Đăng ký thành công! Hãy kiểm tra email hoặc đăng nhập ngay.");
+        alert("🎉 Đăng ký thành công! Bạn có thể bấm Đăng nhập ngay.");
     }
 }
 
 async function handleLogin() {
-    const email = document.getElementById('auth-email').value.trim();
-    const password = document.getElementById('auth-password').value.trim();
+    const emailField = document.getElementById('auth-email');
+    const passwordField = document.getElementById('auth-password');
+    if(!emailField || !passwordField) return;
+
+    const email = emailField.value.trim();
+    const password = passwordField.value.trim();
 
     if(!email || !password) {
         alert("Vui lòng nhập đầy đủ email và mật khẩu!");
         return;
     }
 
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await dbClient.auth.signInWithPassword({ email, password });
     if (error) {
         alert("Đăng nhập thất bại: " + error.message);
     } else {
@@ -60,20 +74,24 @@ async function handleLogin() {
 }
 
 async function handleLogout() {
-    await supabase.auth.signOut();
+    await dbClient.auth.signOut();
     currentUser = null;
     showAuthScreen();
 }
 
 function showAuthScreen() {
-    document.getElementById('screen-auth').classList.remove('hidden');
-    document.getElementById('screen-home').classList.add('hidden');
+    const authScreen = document.getElementById('screen-auth');
+    const homeScreen = document.getElementById('screen-home');
     const bottomNav = document.getElementById('bottom-nav');
+
+    if(authScreen) authScreen.classList.remove('hidden');
+    if(homeScreen) homeScreen.classList.add('hidden');
     if(bottomNav) bottomNav.style.transform = 'translateY(100%)';
 }
 
 function showHomeScreen() {
-    document.getElementById('screen-auth').classList.add('hidden');
+    const authScreen = document.getElementById('screen-auth');
+    if(authScreen) authScreen.classList.add('hidden');
     goHome();
 }
 
@@ -81,15 +99,14 @@ function showHomeScreen() {
 async function fetchUserData() {
     if (!currentUser) return;
     try {
-        const { data, error } = await supabase
+        const { data, error } = await dbClient
             .from('profiles')
             .select('*')
             .eq('id', currentUser.id)
             .single();
 
         if (error || !data) {
-            // Nếu chưa có profile, tạo dòng mới cho user này
-            await supabase.from('profiles').insert([{
+            await dbClient.from('profiles').insert([{
                 id: currentUser.id,
                 full_name: currentUser.email.split('@')[0],
                 target: userTarget,
@@ -111,7 +128,7 @@ async function fetchUserData() {
 async function saveStateToCloud() {
     if (!currentUser) return;
     try {
-        await supabase
+        await dbClient
             .from('profiles')
             .update({
                 full_name: userName,
