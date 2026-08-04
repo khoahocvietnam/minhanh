@@ -1,8 +1,7 @@
-// ================= KẾT NỐI SUPABASE (ĐÃ SỬA XUNG ĐỘT TÊN) =================
+// ================= KẾT NỐI SUPABASE =================
 const SUPABASE_URL = 'https://ifhskkqjttkucirpztsi.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmaHNra3FqdHRrdWNpcnB6dHNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4Mjk2NzksImV4cCI6MjEwMTQwNTY3OX0.n1sMPDMMRTcM72XKWyVKZJg3H67KPnSQHv03NKi8i3M';
 
-// Dùng biến dbClient thay vì supabase để không bị xung đột với window.supabase của CDN
 const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
@@ -11,7 +10,7 @@ let userTarget = "Sĩ tử 2K7 • Mục tiêu 9+ Tiếng Anh";
 let userXP = 850;
 let streak = 7;
 
-// Kiểm tra trạng thái đăng nhập khi mở app
+// ================= KHỞI TẠO ỨNG DỤNG & AUTH =================
 window.addEventListener('DOMContentLoaded', async () => {
     try {
         const { data: { session } } = await dbClient.auth.getSession();
@@ -28,7 +27,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// ================= AUTH LOGIC =================
 async function handleRegister() {
     const emailField = document.getElementById('auth-email');
     const passwordField = document.getElementById('auth-password');
@@ -42,7 +40,7 @@ async function handleRegister() {
         return;
     }
 
-    const { data, error } = await dbClient.auth.signUp({ email, password });
+    const { error } = await dbClient.auth.signUp({ email, password });
     if (error) {
         alert("Lỗi đăng ký: " + error.message);
     } else {
@@ -95,7 +93,7 @@ function showHomeScreen() {
     goHome();
 }
 
-// ================= CLOUD DATABASE SYNC =================
+// ================= ĐỒNG BỘ DỮ LIỆU CLOUD =================
 async function fetchUserData() {
     if (!currentUser) return;
     try {
@@ -106,6 +104,7 @@ async function fetchUserData() {
             .single();
 
         if (error || !data) {
+            // Tạo bản ghi mặc định cho user mới trên Cloud
             await dbClient.from('profiles').insert([{
                 id: currentUser.id,
                 full_name: currentUser.email.split('@')[0],
@@ -121,7 +120,7 @@ async function fetchUserData() {
         }
         updateDynamicUI();
     } catch (err) {
-        console.error('Lỗi tải dữ liệu:', err);
+        console.error('Lỗi tải dữ liệu từ Cloud:', err);
     }
 }
 
@@ -197,7 +196,7 @@ async function updateXP(amount) {
     }
 }
 
-// ================= NAVIGATION =================
+// ================= ĐIỀU HƯỚNG MÀN HÌNH =================
 function openScreen(screenId) {
     document.querySelectorAll('.app-screen').forEach(el => {
         el.classList.add('hidden');
@@ -228,7 +227,7 @@ function goHome() {
     if(bottomNav) bottomNav.style.transform = 'translateY(0)';
 }
 
-// ================= QUIZ LOGIC =================
+// ================= GRAMMAR LAB (QUIZ) =================
 const quizData = [
     { q: "I _____ working on this project since last Monday.", options: ["have been", "am", "was", "had"], ans: 0 },
     { q: "If I _____ you, I would study harder for the exam.", options: ["was", "am", "were", "had been"], ans: 2 },
