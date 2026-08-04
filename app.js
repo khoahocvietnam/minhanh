@@ -196,13 +196,7 @@ function resetTimer() {
     }
 }
 
-// AI Chat Logic
-let chatHistory = [];
-
-function handleChatKey(e) {
-    if(e.key === 'Enter') sendChatMessage();
-}
-
+// AI Chat Logic (Gọi ngầm qua Vercel Serverless Function /api/chat)
 function appendMessage(text, sender) {
     const container = document.getElementById('chat-messages');
     if(!container) return;
@@ -245,6 +239,10 @@ function removeLoading() {
     if (loader) loader.remove();
 }
 
+function handleChatKey(e) {
+    if(e.key === 'Enter') sendChatMessage();
+}
+
 async function sendChatMessage() {
     const input = document.getElementById('chat-input');
     if(!input) return;
@@ -253,50 +251,27 @@ async function sendChatMessage() {
 
     appendMessage(text, 'user');
     input.value = '';
-    
-    chatHistory.push({ role: "user", parts: [{ text: text }] });
     appendLoading();
 
     try {
-        const apiKey = "YOUR_API_KEY_HERE"; // Thay key của bạn vào đây
-        
-        if (!apiKey || apiKey === "YOUR_API_KEY_HERE" || apiKey === "") {
-            removeLoading();
-            appendMessage("⚠️ <b>Lỗi kết nối:</b> Bạn chưa điền Gemini API Key trong file <code>app.js</code>! 🐘", 'bot');
-            chatHistory.pop();
-            return;
-        }
-
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-        
-        const payload = {
-            contents: chatHistory,
-            systemInstruction: {
-                parts: [{ text: "Bạn tên là Scorey, một chú voi AI thông minh làm gia sư tiếng Anh cho học sinh cấp 3 tại Việt Nam ôn thi THPT Quốc Gia. Hãy luôn trả lời bằng tiếng Việt, giải thích ngữ pháp ngắn gọn, dễ hiểu, dùng ngôn ngữ GenZ thân thiện, hay dùng emoji. Câu trả lời dưới 100 chữ." }]
-            }
-        };
-
-        const response = await fetch(apiUrl, {
+        const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            body: JSON.stringify({ message: text })
         });
         
         const result = await response.json();
         removeLoading();
 
-        if (result.candidates && result.candidates[0].content) {
-            const aiText = result.candidates[0].content.parts[0].text;
-            chatHistory.push({ role: "model", parts: [{ text: aiText }] });
-            const htmlText = aiText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+        if (result.text) {
+            const htmlText = result.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
             appendMessage(htmlText, 'bot');
         } else {
-            appendMessage("Xin lỗi, Scorey đang bị nghẽn mạng một xíu, bạn thử lại sau nha 😥", 'bot');
+            appendMessage(result.error || "Scorey đang bận một chút, thử lại sau nhé! 😥", 'bot');
         }
-
     } catch (error) {
-        console.error("AI Chat Error:", error);
+        console.error("Chat Error:", error);
         removeLoading();
-        appendMessage("Oops! Kết nối mạng bị lỗi rồi, Minh Anh kiểm tra lại nha 🔌", 'bot');
+        appendMessage("Lỗi kết nối mạng rồi bạn ơi! 🔌", 'bot');
     }
 }
