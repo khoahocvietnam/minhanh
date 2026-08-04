@@ -6,7 +6,7 @@ const dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 let userName = "Sĩ tử";
-let userTarget = "Sĩ tử 2K7 • Mục tiêu 9+ Tiếng Anh (Cấu trúc mới)";
+let userTarget = "Sĩ tử 2K7 • Mục tiêu 9+ Tiếng Anh";
 let userXP = 850;
 let streak = 7;
 
@@ -310,26 +310,29 @@ function finishQuiz() {
     updateXP(quizScore);
 }
 
-// ================= AI MOCK TEST GENERATOR =================
+// ================= AI MOCK TEST & TEST LAUNCHER =================
+function startTest(testName) {
+    // Chuyển trực tiếp sang màn hình làm bài (screen-quiz) khi bấm làm bài
+    openScreen('screen-quiz');
+}
+
 async function generateAIMockTest() {
     const container = document.getElementById('ai-test-container');
     if(!container) return;
 
-    alert("🤖 AI đang biên soạn đề thi thử bám sát cấu trúc 40 câu mới nhất... Vui lòng đợi 3 giây!");
-    
-    // Thêm đề thi mới do AI tạo động vào giao diện
+    // Thêm đề thi mới do AI tạo động vào giao diện với nút bấm gọi hàm startTest
     const newTestDiv = document.createElement('div');
-    newTestDiv.className = "bg-white p-4 rounded-2xl shadow-sm border border-red-100 flex justify-between items-center animate-pulse";
+    newTestDiv.className = "bg-white p-4 rounded-2xl shadow-sm border border-red-100 flex justify-between items-center";
     newTestDiv.innerHTML = `
         <div>
             <span class="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded-md">AI Generated</span>
             <h4 class="font-display text-sm font-bold text-app-dark mt-1">Đề thi thử AI (Chuyên đề Đọc hiểu & Điền từ)</h4>
             <p class="text-[11px] text-gray-400">Tạo tự động bởi Scorey AI • 40 câu trắc nghiệm</p>
         </div>
-        <button onclick="alert('Đã kích hoạt bộ đề AI thành công! Chúc sĩ tử ôn tập tốt.')" class="bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold">Làm ngay</button>
+        <button onclick="startTest('AI Test')" class="bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow hover:bg-red-700">Làm ngay</button>
     `;
     container.prepend(newTestDiv);
-    setTimeout(() => newTestDiv.classList.remove('animate-pulse'), 1000);
+    alert("🤖 Đã tạo đề thi AI thành công! Hãy bấm nút 'Làm ngay' bên dưới để bắt đầu làm bài.");
 }
 
 // ================= POMODORO TIMER =================
