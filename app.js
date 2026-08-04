@@ -3,22 +3,64 @@ const SUPABASE_URL = 'https://ifhskkqjttkucirpztsi.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlmaHNra3FqdHRrdWNpcnB6dHNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4Mjk2NzksImV4cCI6MjEwMTQwNTY3OX0.n1sMPDMMRTcM72XKWyVKZJg3H67KPnSQHv03NKi8i3M';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const CURRENT_USER_ID = 'user_default';
-// ================= STATE & LOCALSTORAGE (CÁ NHÂN HÓA ĐỘNG) =================
-let userName = localStorage.getItem('scoreup_name') || "Minh Anh";
-let userTarget = localStorage.getItem('scoreup_target') || "Sĩ tử 2K7 • Mục tiêu 9+ Tiếng Anh";
-let userXP = parseInt(localStorage.getItem('scoreup_xp')) || 850;
-let streak = parseInt(localStorage.getItem('scoreup_streak')) || 7;
+const CURRENT_USER_ID = 'user_default'; 
 
-window.addEventListener('DOMContentLoaded', () => {
+// State ứng dụng
+let userName = "Minh Anh";
+let userTarget = "Sĩ tử 2K7 • Mục tiêu 9+ Tiếng Anh";
+let userXP = 850;
+let streak = 7;
+
+// Tự động tải dữ liệu từ Supabase Cloud khi mở trang
+window.addEventListener('DOMContentLoaded', async () => {
+    await fetchUserData();
     updateDynamicUI();
 });
 
-function saveState() {
-    localStorage.setItem('scoreup_xp', userXP);
-    localStorage.setItem('scoreup_streak', streak);
-    localStorage.setItem('scoreup_name', userName);
-    localStorage.setItem('scoreup_target', userTarget);
+async function fetchUserData() {
+    try {
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', CURRENT_USER_ID)
+            .single();
+
+        if (error) {
+            console.error('Lỗi tải dữ liệu từ Supabase:', error.message);
+            return;
+        }
+
+        if (data) {
+            userName = data.full_name || "Minh Anh";
+            userTarget = data.target || "Sĩ tử 2K7";
+            userXP = data.xp || 850;
+            streak = data.streak || 7;
+            updateDynamicUI();
+        }
+    } catch (err) {
+        console.error('Lỗi kết nối database:', err);
+    }
+}
+
+async function saveStateToCloud() {
+    try {
+        const { error } = await supabase
+            .from('profiles')
+            .update({
+                full_name: userName,
+                target: userTarget,
+                xp: userXP,
+                streak: streak,
+                updated_at: new Date()
+            })
+            .eq('id', CURRENT_USER_ID);
+
+        if (error) {
+            console.error('Lỗi lưu dữ liệu lên Supabase:', error.message);
+        }
+    } catch (err) {
+        console.error('Lỗi hệ thống khi lưu:', err);
+    }
 }
 
 function updateDynamicUI() {
@@ -47,7 +89,7 @@ function updateDynamicUI() {
     if(statsStreak) statsStreak.innerText = streak;
 }
 
-function editProfile() {
+async function editProfile() {
     const newName = prompt("Nhập tên hiển thị của bạn:", userName);
     if(newName !== null && newName.trim() !== "") {
         userName = newName.trim();
@@ -58,15 +100,15 @@ function editProfile() {
         userTarget = newTarget.trim();
     }
 
-    saveState();
     updateDynamicUI();
-    alert("🎉 Đã cập nhật hồ sơ thành công!");
+    await saveStateToCloud();
+    alert("🎉 Đã cập nhật và đồng bộ hồ sơ lên Cloud thành công!");
 }
 
-function updateXP(amount) {
+async function updateXP(amount) {
     userXP += amount;
-    saveState();
     updateDynamicUI();
+    await saveStateToCloud();
 
     const xpDisplay = document.getElementById('xp-display');
     if(xpDisplay) {
